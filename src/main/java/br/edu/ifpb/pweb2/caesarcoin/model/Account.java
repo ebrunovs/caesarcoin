@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Account {
-    public Long id;
+    public Integer id;
     public String number;
     public String description;
     public String type;

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class Transaction {
-    public Long id;
+    public Integer id;
     public Date date;
     public String description;
     public Double value;

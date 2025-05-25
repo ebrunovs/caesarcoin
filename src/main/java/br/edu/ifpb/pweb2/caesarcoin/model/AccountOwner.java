@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class AccountOwner {
-    public Long id;
+    public Integer id;
     public String name;
 }
