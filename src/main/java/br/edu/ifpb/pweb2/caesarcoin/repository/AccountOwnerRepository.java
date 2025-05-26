@@ -7,8 +7,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 
+@Component
 public class AccountOwnerRepository {
     private Map<Integer, AccountOwner> repository = new HashMap<Integer, AccountOwner>();
 

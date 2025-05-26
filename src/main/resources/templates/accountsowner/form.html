@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Correntista</title>
+</head>
+
+<body>
+    <h1>Cadastro de Correntista</h1>
+
+
+
+
+    <form th:action="@{/accountsowner}" method="POST" th:object="${accountowner}">
+        <input type="hidden" th:field="*{id}" />
+        Nome: <input type="text" th:field="*{name}"> <br><br>
+        Email: <input type="text" th:field="*{email}"><br><br>
+        Senha: <input type="password" th:field="*{password}"><br><br>
+        Admin? <input type="checkbox" th:field="*{admin}"><br><br>
+        <input type="submit" value="Salvar">
+        <a th:href="@{/accountsowner}">Cancelar</a>
+    </form>
+</body>
+
+</html>
