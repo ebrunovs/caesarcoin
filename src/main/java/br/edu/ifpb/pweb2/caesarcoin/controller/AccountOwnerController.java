@@ -29,7 +29,7 @@ public class AccountOwnerController {
     @PostMapping
     public ModelAndView save(AccountOwner accOwner, ModelAndView model, RedirectAttributes attr){
         accOwnerService.save(accOwner);
-        attr.addFlashAttribute("mensagem", "Correntista inserido com sucesso!");
+        attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
         model.setViewName("redirect:accountsowner");
         return model;
     }

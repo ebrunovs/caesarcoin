@@ -15,7 +15,7 @@
         <img th:src="@{/imagens/bitbank-logo.png}" alt="Logo do Bitbank" />
         <p>Por favor, autentique-se</p>
 
-        <div th:if="${not #strings.isEmpty(mensage)}" th:utext="${mensage}" role="alert"></div>
+        <div th:if="${not #strings.isEmpty(message)}" th:utext="${message}" role="alert"></div>
 
         <div>
           <label for="email">Email</label>

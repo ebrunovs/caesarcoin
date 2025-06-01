@@ -32,7 +32,7 @@ public class AuthController {
             session.setAttribute("user", accOwner);
             model.setViewName("redirect:/home");
         } else{
-            attr.addFlashAttribute("mensage", "Login e/ou senha inválidos!");
+            attr.addFlashAttribute("message", "Login e/ou senha inválidos!");
             model.setViewName("redirect:/auth");
         }
         return model;
