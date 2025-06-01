@@ -39,4 +39,11 @@ public class AccountOwnerRepository {
         AccountOwner accMaxId = accs.stream().max(Comparator.comparing(AccountOwner::getId)).orElseThrow(NoSuchElementException::new);
         return accMaxId.getId() == null ? 1 : accMaxId.getId() + 1; 
     }
+
+    public AccountOwner findByEmail(String email) {
+        return repository.values().stream()
+                .filter(c -> c.getEmail() != null && c.getEmail().equalsIgnoreCase(email))
+                .findFirst()
+                .orElse(null);
+    }
 }
