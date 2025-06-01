@@ -6,13 +6,13 @@
 
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <link rel="stylesheet" th:href="@{/css/auth.css}" />
-    <link rel="icon" th:href="@{/imagens/favicon.ico}" type="image/x-icon" />
+    <link rel="icon" th:href="@{/images/favicon.ico}" type="image/x-icon" />
   </head>
 
   <body>
     <form th:action="@{/auth}" method="POST" th:object="${user}" class="form-signin">
       <div class="centered">
-        <img th:src="@{/imagens/bitbank-logo.png}" alt="Logo do Bitbank" />
+        <img th:src="@{/images/caesarcoin-logo.png}" alt="Logo do CaesarCoin" />
         <p>Por favor, autentique-se</p>
 
         <div th:if="${not #strings.isEmpty(message)}" th:utext="${message}" role="alert"></div>
