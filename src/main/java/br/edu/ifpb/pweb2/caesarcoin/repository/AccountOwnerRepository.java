@@ -32,11 +32,19 @@ public class AccountOwnerRepository {
         return accsOwner;
     }
 
-    private Integer getMaxId() {
+    public Integer getMaxId() {
         List<AccountOwner> accs = findAll();
         if(accs == null || accs.isEmpty())
             return 1;
         AccountOwner accMaxId = accs.stream().max(Comparator.comparing(AccountOwner::getId)).orElseThrow(NoSuchElementException::new);
         return accMaxId.getId() == null ? 1 : accMaxId.getId() + 1; 
+    }
+
+    public AccountOwner findByEmail(String email){
+        return repository.values()
+                        .stream()
+                        .filter(ac -> ac.getEmail() != null && ac.getEmail().equalsIgnoreCase(email))
+                        .findFirst()
+                        .orElse(null);
     }
 }
