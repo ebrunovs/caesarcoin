@@ -3,14 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro de Correntista</title>
+    <title>CaesarCoin - Cadastro de Correntista</title>
 </head>
 
 <body>
     <h1>Cadastro de Correntista</h1>
-
-
-
 
     <form th:action="@{/accountsowner}" method="POST" th:object="${accountowner}">
         <input type="hidden" th:field="*{id}" />

@@ -16,7 +16,7 @@ public class Account implements Serializable {
     public String type;
     
     @DateTimeFormat(pattern = "dd/MM/yyyy")
-    public Integer dueDate;
+    public String dueDate;
 
     public AccountOwner accountOwner;
 

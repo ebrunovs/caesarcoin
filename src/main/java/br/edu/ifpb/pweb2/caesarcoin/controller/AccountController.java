@@ -40,6 +40,13 @@ public class AccountController {
         return accOwnerService.findAll();
     }
 
+    @GetMapping
+    public ModelAndView listAll(ModelAndView model){
+        model.addObject("accounts", accService.findAll());
+        model.setViewName("accounts/list");
+        return model;
+    }
+
 
     @PostMapping
     public ModelAndView save(Account account, ModelAndView model, RedirectAttributes attr){
