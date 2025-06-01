@@ -25,7 +25,7 @@
                 <div class="menu-links">
                     <a th:classappend="${menu == 'home'} ? 'active'" th:href="@{/home}">Home</a>
 
-                    <a th:classappend="${menu == 'accountOwner'} ? 'active'" th:href="@{/accountsOwner}"
+                    <a th:classappend="${menu == 'accountOwner'} ? 'active'" th:href="@{/accountowners}"
                         th:if="${session.user != null and  session.user.admin}">Correntistas</a>
 
                     <a th:classappend="${menu == 'account'} ? 'active'" th:href="@{/accounts}"

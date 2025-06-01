@@ -16,7 +16,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/**", "/accountsowner/**", "/accounts/**")
+                .addPathPatterns("/**", "/accountowners/**", "/accounts/**")
                 .excludePathPatterns("/auth/**", "/css/**", "/images/**");
     }
     
