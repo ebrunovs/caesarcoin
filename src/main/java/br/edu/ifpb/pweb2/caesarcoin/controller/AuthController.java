@@ -22,7 +22,7 @@ public class AuthController {
 
     @GetMapping
     public ModelAndView getForm(ModelAndView model){
-        model.setViewName("auth/form");
+        model.setViewName("auth/login");
         model.addObject("user", new  AccountOwner());
         return model;
     }
