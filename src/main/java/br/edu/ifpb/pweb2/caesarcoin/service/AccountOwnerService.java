@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
+import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
 
 @Component
 public class AccountOwnerService implements Service<AccountOwner, Integer>{
@@ -26,6 +27,7 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
 
     @Override
     public AccountOwner save(AccountOwner accOwner) {
+        accOwner.setPassword(PasswordUtil.hashPassword(accOwner.getPassword()));
         return accOwnerRepo.save(accOwner);
     }
 
