@@ -1,10 +1,74 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
     <title>Página Inicial da Aplicação</title>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="icon" th:href="@{/imagens/favicon.ico}" type="image/x-icon" />
 </head>
+
 <body>
-    <h1>caesarcoin no ar!</h1>
+    <div>
+        <!-- Logo/Header -->
+        <div class="logo-bar">
+            <span class="logo-font">
+                <img th:src="@{/imagens/bitbank-header-t.png}" alt="BitBank logo" />
+                CaesarCoin
+            </span>
+        </div>
+
+        <!-- Menu de Navegação -->
+        <div>
+            <nav class="menu-bar">
+                <div class="menu-links">
+                    <a th:classappend="${menu == 'home'} ? 'active'" th:href="@{/home}">Home</a>
+
+                    <a th:classappend="${menu == 'accountOwner'} ? 'active'" th:href="@{/accountsOwner}"
+                        th:if="${session.user != null and  session.user.admin}">Correntistas</a>
+
+                    <a th:classappend="${menu == 'account'} ? 'active'" th:href="@{/accounts}"
+                        th:if="${session.user != null and  session.user.admin}">Contas</a>
+                </div>
+                <div class="user-info">
+                    <span th:if="${session.user != null}" th:text="${session.user.email}"></span>
+                    <a th:href="@{/auth/logout}">
+                        <button class="logout-button">Sair</button>
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="conteudo">
+            <div class="caixa">
+                <div class="caixa-titulo">
+                    <span>CaesarCoin</span>
+                </div>
+                <div class="caixa-corpo">
+                    <p>Este é o CaesarCoin, o seu banco digital muito mais acessível.</p>
+
+                    <div>Como administrador, você poderá:</div>
+                    <ul>
+                        <li>
+                            Adicionar ou consultar correntistas cadastrados usando o menu
+                            <strong>Correntistas</strong>
+                        </li>
+                    </ul>
+                    <div>Como cliente, você poderá realizar operações na sua conta:</div>
+                    <ul>
+                        <li>
+                            Adicionar ou consultar contas cadastradas usando o menu
+                            <strong>Contas</strong>
+                        </li>
+                        <li>Realizar créditos</li>
+                        <li>Realizar pagamentos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>
