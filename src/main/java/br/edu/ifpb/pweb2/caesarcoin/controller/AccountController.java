@@ -51,7 +51,7 @@ public class AccountController {
     @PostMapping
     public ModelAndView save(Account account, ModelAndView model, RedirectAttributes attr){
         accService.save(account);
-        attr.addFlashAttribute("mensage","Conta inserida com sucesso");
+        attr.addFlashAttribute("message","Conta inserida com sucesso");
         model.setViewName("redirect:/accounts");
         return model;
     }

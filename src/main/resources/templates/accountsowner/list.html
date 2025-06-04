@@ -9,13 +9,13 @@
     <h1>Correntistas Cadastrados</h1>
     <hr />
 
-    <form th:action="@{/accountsowner/form}" method="GET">
+    <form th:action="@{/accountowners/form}" method="GET">
         <button class="btn btn-primary" type="submit">Novo</button>
     </form>
     <br />
 
 
-    <div th:text="${mensagem}" style="color: red"></div>
+    <div th:text="${messagem}" style="color: red"></div>
 
     <table border="1">
         <thead>
@@ -28,9 +28,9 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="accountowner : ${accountsowner}">
+            <tr th:each="accountowner : ${accountowners}">
                 <td>[[${accountowner.id}]]</td>
-                <td><a th:href="@{/accountsowner/{id}(id=${accountowner.id})}" th:text="${accountowner.name}"></a></td>
+                <td><a th:href="@{/accountowners/{id}(id=${accountowner.id})}" th:text="${accountowner.name}"></a></td>
                 <td th:text="${accountowner.email}"></td>
                 <td th:text="${accountowner.admin}"></td>
                 <td th:text="${#strings.substring(accountowner.password,0,3)} + '...'"></td>
