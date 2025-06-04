@@ -12,5 +12,5 @@ public class AccountOwner implements Serializable {
     public String name;
     public String password;
     public String email;
-    public Boolean admin;
+    public boolean admin;
 }
