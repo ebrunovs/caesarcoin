@@ -29,7 +29,7 @@
                         th:if="${session.user != null and  session.user.admin}">Correntistas</a>
 
                     <a th:classappend="${menu == 'account'} ? 'active'" th:href="@{/accounts}"
-                        th:if="${session.user != null and  session.user.admin}">Contas</a>
+                        th:if="${session.user != null and  !(session.user.admin)}">Contas</a>
                 </div>
                 <div class="user-info">
                     <span th:if="${session.user != null}" th:text="${session.user.email}"></span>

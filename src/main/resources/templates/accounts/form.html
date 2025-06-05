@@ -16,7 +16,11 @@
 
         <label for="accountowner">Correntista</label>
         <select th:field="*{accountOwner.id}">
-            <option th:each="acc : ${accountOwnerItens}" th:value="${acc.id}" th:label="${acc.name}" />
+            <option th:each="acc : ${accountOwnerItens}"
+                    th:if="${!acc.admin}"
+                    th:value="${acc.id}"
+                    th:text="${acc.name}">
+            </option>
         </select>
         <br /><br />
 
