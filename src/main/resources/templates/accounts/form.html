@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+
+<head>
+    <title>CaesarCoin - Cadastro de Conta</title>
+</head>
+
+<body>
+    <h1 class="mb-3">Cadastro de conta</h1>
+
+    <form th:action="@{/accounts}" method="POST" th:object="${account}">
+        <input type="hidden" th:field="*{id}" />
+
+        <label for="account">Número</label>
+        <input type="text" th:field="*{number}" /><br /><br />
+
+        <label for="accountowner">Correntista</label>
+        <select th:field="*{accountOwner.id}">
+            <option th:each="acc : ${accountOwnerItens}" th:value="${acc.id}" th:label="${acc.name}" />
+        </select>
+        <br /><br />
+
+        <label for="data">Data</label>
+        <input type="text" th:field="*{dueDate}" /><br /><br />
+
+        <hr>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{/accounts}">Cancelar</a>
+    </form>
+</body>
+
+</html>

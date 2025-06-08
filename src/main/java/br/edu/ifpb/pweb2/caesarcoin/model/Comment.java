@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Comment {
-    public Long id;
+    public Integer id;
     public String text;
     public Long idTransaction;
 }

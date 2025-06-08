@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Category {
-    public Long id;
+    public Integer id;
     public String name;
     public Boolean isActive;
     public String kind;

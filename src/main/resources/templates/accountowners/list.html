@@ -1,0 +1,42 @@
+<html xmlns:th="www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Correntistas</title>
+</head>
+
+<body>
+    <h1>Correntistas Cadastrados</h1>
+    <hr />
+
+    <form th:action="@{/accountowners/form}" method="GET">
+        <button class="btn btn-primary" type="submit">Novo</button>
+    </form>
+    <br />
+
+
+    <div th:text="${message}" style="color: red"></div>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Admin</th>
+                <th>Senha</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="accountowner : ${accountowners}">
+                <td>[[${accountowner.id}]]</td>
+                <td><a th:href="@{/accountowners/{id}(id=${accountowner.id})}" th:text="${accountowner.name}"></a></td>
+                <td th:text="${accountowner.email}"></td>
+                <td th:text="${accountowner.admin}"></td>
+                <td th:text="${#strings.substring(accountowner.password,0,3)} + '...'"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>

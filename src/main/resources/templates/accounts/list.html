@@ -1,0 +1,38 @@
+<!doctype html5>
+<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+
+<head>
+    <title>CaesarCoin - Contas Cadastradas</title>
+</head>
+
+<body>
+    <h1>Contas Cadastradas</h1>
+    <hr />
+
+    <form th:action="@{/accounts/form}" method="GET">
+        <button class="btn btn-primary" type="submit">Nova</button>
+    </form>
+    <br />
+
+    <div th:text="${message}" style="color: red"></div>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Número</th>
+                <th>Correntista</th>
+                <th style="text-align: center;">Data abertura</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="account : ${accounts}">
+                <td><a th:href="@{/accounts/{id}(id=${account.id})}" th:text="${account.number}"></a></td>
+                <td><a th:text="${account.accountOwner.name}"></a></td>
+
+                <td th:text="${#dates.format(account.dueDate, 'dd/MM/yyyy')}" style="text-align: center;" />
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
