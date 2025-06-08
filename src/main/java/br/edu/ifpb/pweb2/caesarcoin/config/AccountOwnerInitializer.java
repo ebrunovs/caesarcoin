@@ -17,7 +17,7 @@ public class AccountOwnerInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args){
-        if (accOwnerRepo.findByEmail("admin@bitbank.com") == null){
+        if (accOwnerRepo.findByEmail("admin@caesarcoin.com") == null){
             AccountOwner accOwner = new AccountOwner();
             accOwner.setName("Administrador");
             accOwner.setEmail("admin@caesarcoin.com");

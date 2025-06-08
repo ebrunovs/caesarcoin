@@ -14,7 +14,6 @@ import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 
 @Controller
 @RequestMapping("/accountowners")
-@RequestMapping("/accountowners")
 public class AccountOwnerController {
     
     @Autowired
@@ -23,7 +22,6 @@ public class AccountOwnerController {
     @GetMapping("/form")
     public ModelAndView getForm(AccountOwner accOwner, ModelAndView model){
         model.addObject("accountowner", accOwner);
-        model.setViewName("accountowners/form");
         model.setViewName("accountowners/form");
         return model;
     }
@@ -40,14 +38,11 @@ public class AccountOwnerController {
     public ModelAndView listAll(ModelAndView model){
         model.addObject("accountowners", accOwnerService.findAll());
         model.setViewName("accountowners/list");
-        model.addObject("accountowners", accOwnerService.findAll());
-        model.setViewName("accountowners/list");
         return model;
     }
 
     @GetMapping("/{id}")
     public ModelAndView getAccOwnerById(@PathVariable(value = "id") Integer id, ModelAndView model) {
-        model.setViewName("accountowners/form");
         model.setViewName("accountowners/form");
         model.addObject("accountowner", accOwnerService.findById(id));
         return model;

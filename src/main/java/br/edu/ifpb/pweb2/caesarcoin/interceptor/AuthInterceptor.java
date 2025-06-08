@@ -31,7 +31,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 String relativePath = path.substring(contextPath.length());
 
                 // Check if the user is accessing a restricted path
-                boolean requerAdmin = relativePath.startsWith("/accountowners") || relativePath.startsWith("/accounts");
+                boolean requerAdmin = relativePath.startsWith("/accountowners");
 
                 // If the user is accessing a restricted path, check if they are an admin
                 if (requerAdmin & !user.isAdmin()) {
