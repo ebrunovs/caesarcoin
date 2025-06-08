@@ -1,6 +1,7 @@
 package br.edu.ifpb.pweb2.caesarcoin.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,8 +16,8 @@ public class Account implements Serializable {
     public String description;
     public String type;
     
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    public String dueDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    public Date dueDate;
 
     public AccountOwner accountOwner;
 
