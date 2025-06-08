@@ -5,31 +5,27 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
+import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
 
 @Component
 public class AccountOwnerInitializer implements ApplicationRunner {
-
-    String ADMIN_EMAIL = "admin@caesarcoin.tech";
-
+    
     @Autowired
-    private AccountOwnerRepository accOwnerRepository;
+    private AccountOwnerRepository accOwnerRepo;
 
     @Override
-    public void run(ApplicationArguments args) {
-        if (accOwnerRepository.findByEmail(ADMIN_EMAIL) == null) {
-            AccountOwner correntista = new AccountOwner();
-            correntista.setName("Admin");
-            correntista.setEmail(ADMIN_EMAIL);
-            correntista.setPassword(PasswordUtil.hashPassword("123"));
-            correntista.setAdmin(true);
+    public void run(ApplicationArguments args){
+        if (accOwnerRepo.findByEmail("admin@bitbank.com") == null){
+            AccountOwner accOwner = new AccountOwner();
+            accOwner.setName("Administrador");
+            accOwner.setEmail("admin@caesarcoin.com");
+            accOwner.setPassword(PasswordUtil.hashPassword("123"));
+            accOwner.setAdmin(true);
 
-            accOwnerRepository.save(correntista);
-            System.out.println("Correntista admin inserido com sucesso.");
-        } else {
-            System.out.println("Correntista admin já existe.");
+            accOwnerRepo.save(accOwner);
         }
     }
+
 }

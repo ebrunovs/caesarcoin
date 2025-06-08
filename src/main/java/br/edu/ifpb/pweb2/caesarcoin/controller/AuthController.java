@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
 import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
+import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -33,6 +34,7 @@ public class AuthController {
             session.setAttribute("user", accOwner);
             model.setViewName("redirect:/home");
         } else{
+            attr.addFlashAttribute("message", "Login e/ou senha inválidos!");
             attr.addFlashAttribute("message", "Login e/ou senha inválidos!");
             model.setViewName("redirect:/auth");
         }
