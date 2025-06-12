@@ -23,10 +23,9 @@
         <th>Id</th>
         <th>Data</th>
         <th>Descrição</th>
-        <th>id categoria</th>
         <th>Tipo</th>
         <th>Valor</th>
-        <th>id conta</th>
+        <th>Editar</th>
     </tr>
     </thead>
     <tbody>
@@ -34,10 +33,11 @@
         <td>[[${transaction.id}]]</td>
         <td th:text="${transaction.date}"></td>
         <td th:text="${transaction.description}"></td>
-        <td th:text="${transaction.idCategory}"></td>
         <td th:text="${transaction.type}"></td>
         <td th:text="${transaction.value}"></td>
-        <td th:text="${transaction.idAccount}"></td>
+        <td>
+            <a th:href="@{/transactions/{id}(id=${transaction.id})}">Editar</a>
+        </td>
     </tr>
     </tbody>
 </table>

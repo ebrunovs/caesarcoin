@@ -33,7 +33,7 @@ public class Account implements Serializable {
     @JoinColumn(name = "id_accountOwner")
     private AccountOwner accountOwner;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "idAccount", cascade = CascadeType.ALL)
     private Set<Transaction> transactions = new HashSet<Transaction>();
 
     public Account(AccountOwner accOwner){
