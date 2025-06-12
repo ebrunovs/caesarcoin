@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CaesarCoin - Cadastro de Transações</title>
+</head>
+
+<body>
+<h1>Cadastro de Transações</h1>
+
+<form th:action="@{/transactions}" method="POST" th:object="${transaction}">
+    <input type="hidden" th:field="*{id}" />
+    Data: <input type="date" th:field="*{date}"> <br><br>
+    Descrição: <input type="text" th:field="*{description}"><br><br>
+    Valor: <input type="number" th:field="*{value}"><br><br>
+    Tipo: <input type="text" th:field="*{type}"><br><br>
+    Categoria: <input type="number" th:field="*{idCategory}"><br><br>
+    Conta: <input type="number" th:field="*{account}"><br><br>
+
+
+    <input type="submit" value="Salvar">
+    <a th:href="@{/transactions}">Cancelar</a>
+</form>
+</body>
+
+</html>

@@ -20,5 +20,5 @@ public class Category {
     public String name;
     public Boolean isActive;
     public String kind;
-    public Integer order;
+    public Integer ord;
 }

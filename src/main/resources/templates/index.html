@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 
 <head>
     <title>CaesarCoin</title>
@@ -26,6 +26,9 @@
 
                     <a th:classappend="${menu == 'accountowner'} ? 'active'" th:href="@{/accountowners}"
                         th:if="${session.user != null and  session.user.admin}">Correntistas</a>
+
+                    <a th:classappend="${menu == 'transaction'} ? 'active'" th:href="@{/transactions}"
+                       th:if="${session.user != null and  session.user.admin}">Transações</a>
 
                     <a th:classappend="${menu == 'account'} ? 'active'" th:href="@{/accounts}"
                         th:if="${session.user != null and  !(session.user.admin)}">Contas</a>

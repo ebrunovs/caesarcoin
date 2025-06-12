@@ -1,0 +1,46 @@
+<html xmlns:th="www.thymeleaf.org" lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Transações</title>
+</head>
+
+<body>
+<h1>Transações Cadastradas</h1>
+<hr />
+
+<form th:action="@{/transactions/form}" method="GET">
+    <button class="btn btn-primary" type="submit">Novo</button>
+</form>
+<br />
+
+
+<div th:text="${message}" style="color: red"></div>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Data</th>
+        <th>Descrição</th>
+        <th>id categoria</th>
+        <th>Tipo</th>
+        <th>Valor</th>
+        <th>id conta</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="transaction : ${transactions}">
+        <td>[[${transaction.id}]]</td>
+        <td th:text="${transaction.date}"></td>
+        <td th:text="${transaction.description}"></td>
+        <td th:text="${transaction.idCategory}"></td>
+        <td th:text="${transaction.type}"></td>
+        <td th:text="${transaction.value}"></td>
+        <td th:text="${transaction.account}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+
+</html>
