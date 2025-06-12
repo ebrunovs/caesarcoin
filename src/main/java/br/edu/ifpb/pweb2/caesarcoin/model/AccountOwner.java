@@ -22,6 +22,6 @@ public class AccountOwner implements Serializable {
     private String password;
     private String email;
     private boolean admin;
-    @OneToMany(mappedBy = "accountOwner")
+    @OneToMany(mappedBy = "accountOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
 }

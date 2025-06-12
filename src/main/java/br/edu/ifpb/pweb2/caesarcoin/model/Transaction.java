@@ -20,10 +20,12 @@ public class Transaction {
     private String description;
     private Double value;
     private String type;
-    private Long idCategory;
+    @ManyToOne
+    @JoinColumn(name = "id_category")
+    private Category idCategory;
     @ManyToOne
     @JoinColumn(name = "id_account")
-    private Account account;
+    private Account idAccount;
 
 
 }

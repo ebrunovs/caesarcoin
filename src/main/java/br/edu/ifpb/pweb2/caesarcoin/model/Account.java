@@ -30,7 +30,7 @@ public class Account implements Serializable {
     private Date dueDate;
 
     @ManyToOne
-    @JoinColumn(name = "id_account")
+    @JoinColumn(name = "id_accountOwner")
     private AccountOwner accountOwner;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
@@ -43,7 +43,6 @@ public class Account implements Serializable {
 
     public void addTransaction(Transaction transaction) {
         this.transactions.add(transaction);
-        transaction.setAccount(this);
     }
 
 }
