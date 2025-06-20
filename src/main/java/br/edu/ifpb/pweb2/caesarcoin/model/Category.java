@@ -16,9 +16,9 @@ public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer id;
-    public String name;
-    public Boolean isActive;
-    public String kind;
-    public Integer ord;
+    private Integer id;
+    private String name;
+    private Boolean isActive;
+    private String kind;
+    private Integer ord;
 }

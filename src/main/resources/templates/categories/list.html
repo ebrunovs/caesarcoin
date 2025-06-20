@@ -1,0 +1,41 @@
+<!doctype>
+<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+
+<head>
+  <title>CaesarCoin - Categorias Cadastradas</title>
+</head>
+
+<body>
+<h1>Categorias Cadastradas</h1>
+<hr />
+
+<form th:action="@{/categories/form}" method="GET">
+  <button class="btn btn-primary" type="submit">Nova</button>
+</form>
+<br />
+
+<div th:text="${message}" style="color: red"></div>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Nome</th>
+    <th>Ativo</th>
+    <th>Natureza</th>
+    <th style="text-align: center;">Ordem</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="category : ${categories}">
+    <td th:text="${category.id}"></td>
+    <td><a th:text="${category.name}"></a></td>
+    <td><a th:text="${category.isActive}"></a></td>
+    <td><a th:text="${category.kind}"></a></td>
+    <td><a th:text="${category.ord}"></a></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+
+</html>
