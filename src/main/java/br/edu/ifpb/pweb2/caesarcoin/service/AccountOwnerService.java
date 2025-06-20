@@ -22,7 +22,7 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
 
     @Override
     public AccountOwner findById(Integer id) {
-        return accOwnerRepo.findById(id);
+        return accOwnerRepo.findById(id).orElse(null);
     }
 
     @Override

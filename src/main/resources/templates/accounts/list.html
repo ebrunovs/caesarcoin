@@ -1,4 +1,4 @@
-<!doctype html5>
+<!doctype>
 <html lang="pt_BR" xmlns:th="www.thymeleaf.org">
 
 <head>
@@ -29,7 +29,7 @@
                 <td><a th:href="@{/accounts/{id}(id=${account.id})}" th:text="${account.number}"></a></td>
                 <td><a th:text="${account.accountOwner.name}"></a></td>
 
-                <td th:text="${#dates.format(account.dueDate, 'dd/MM/yyyy')}" style="text-align: center;" />
+                <td th:text="${#temporals.format(account.dueDate, 'dd/MM/yyyy')}" style="text-align: center;" />
             </tr>
         </tbody>
     </table>

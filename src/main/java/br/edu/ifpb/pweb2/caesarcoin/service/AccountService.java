@@ -17,7 +17,7 @@ public class AccountService implements Service<Account, Integer> {
     private AccountRepository accRepo;
 
     @Autowired
-    private AccountOwnerRepository accOwnerRepo;
+    private AccountOwnerService accOwnerService;
 
     @Override
     public List<Account> findAll(){
@@ -26,15 +26,27 @@ public class AccountService implements Service<Account, Integer> {
 
     @Override
     public Account findById(Integer id) {
-        return accRepo.findById(id);
+        return accRepo.findById(id).orElse(null);
     }
 
     @Override
     public Account save(Account conta) {
-        AccountOwner correntista = accOwnerRepo.findById(conta.getAccountOwner().getId());
+        AccountOwner correntista = accOwnerService.findById(conta.getAccountOwner().getId());
         conta.setAccountOwner(correntista);
         return accRepo.save(conta);
+
     }
+
+    public Account findByNumberWithTransactions(String nuAccount){
+        return accRepo.findByNumberWithTransactions(nuAccount);
+
+    }
+
+    public Account findByIdWithTransactions(Integer idAccount) {
+        return accRepo.findByIdWithTransactions(idAccount);
+    }
+
+
 
 
 }

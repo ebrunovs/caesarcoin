@@ -7,44 +7,15 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
+import org.springframework.stereotype.Repository;
 
-@Component
-public class AccountOwnerRepository {
-    private Map<Integer, AccountOwner> repository = new HashMap<Integer, AccountOwner>();
+@Repository
+public interface AccountOwnerRepository extends JpaRepository<AccountOwner, Integer> {
 
-    public AccountOwner findById(Integer id){
-        return repository.get(id);
-    }
+    AccountOwner findByEmail(String email);
 
-    public AccountOwner save(AccountOwner accOwner){
-        Integer id = null;
-        id = (accOwner.getId() == null) ? this.getMaxId() : accOwner.getId();
-        accOwner.setId(id);
-        repository.put(id, accOwner);
-        return accOwner;
-    }
-
-    public List<AccountOwner> findAll(){
-        List<AccountOwner> accsOwner = repository.values().stream().collect(Collectors.toList());
-        return accsOwner;
-    }
-
-    public Integer getMaxId() {
-        List<AccountOwner> accs = findAll();
-        if(accs == null || accs.isEmpty())
-            return 1;
-        AccountOwner accMaxId = accs.stream().max(Comparator.comparing(AccountOwner::getId)).orElseThrow(NoSuchElementException::new);
-        return accMaxId.getId() == null ? 1 : accMaxId.getId() + 1; 
-    }
-
-    public AccountOwner findByEmail(String email){
-        return repository.values()
-                        .stream()
-                        .filter(ac -> ac.getEmail() != null && ac.getEmail().equalsIgnoreCase(email))
-                        .findFirst()
-                        .orElse(null);
-    }
 }

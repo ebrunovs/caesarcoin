@@ -7,40 +7,26 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.Account;
+import org.springframework.stereotype.Repository;
 
-@Component
-public class AccountRepository {
-    private Map<Integer, Account> repository = new HashMap<Integer, Account>();
+@Repository
+public interface AccountRepository extends JpaRepository<Account,Integer> {
 
-    public Account findById(Integer id) {
-        return repository.get(id);
-    }
+    Account findByAccountOwner(AccountOwner accountOwner);
 
-    public Account save(Account Account) {
-        Integer id = null;
-        id = (Account.getId() == null) ? this.getMaxId() : Account.getId();
-        Account.setId(id);
-        repository.put(id, Account);
-        return Account;
-    }
+    @Query("from Account c left join fetch c.transactions t where c.number = :number")
+     Account findByNumberWithTransactions(@Param("number") String number);
 
-    public List<Account> findAll() {
-        List<Account> Accounts = repository.values().stream().collect(Collectors.toList());
-        return Accounts;
-    }
+    @Query("select distinct c from Account c left join fetch c.transactions t where c.id = :id")
+     Account findByIdWithTransactions(@Param("id") Integer id);
 
-    public Integer getMaxId() {
-        List<Account> Accounts = findAll();
-        if (Accounts == null || Accounts.isEmpty())
-            return 1;
-        Account AccountMaxId = Accounts
-                .stream()
-                .max(Comparator.comparing(Account::getId))
-                .orElseThrow(NoSuchElementException::new);
-        return AccountMaxId.getId() == null ? 1 : AccountMaxId.getId() + 1;
-    }
+
 
 }

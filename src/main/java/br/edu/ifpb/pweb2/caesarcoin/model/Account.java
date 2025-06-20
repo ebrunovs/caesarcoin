@@ -1,6 +1,7 @@
 package br.edu.ifpb.pweb2.caesarcoin.model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,15 +26,15 @@ public class Account implements Serializable {
     private String number;
     private String description;
     private String type;
-    
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dueDate;
+
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private LocalDate dueDate;
 
     @ManyToOne
     @JoinColumn(name = "id_accountOwner")
     private AccountOwner accountOwner;
 
-    @OneToMany(mappedBy = "idAccount", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Transaction> transactions = new HashSet<Transaction>();
 
     public Account(AccountOwner accOwner){
@@ -41,8 +42,10 @@ public class Account implements Serializable {
     }
 
 
-    public void addTransaction(Transaction transaction) {
+    public void addTransaction(Transaction transaction ,Category category) {
         this.transactions.add(transaction);
+        transaction.setAccount(this);
+        transaction.setCategory(category);
     }
 
 }

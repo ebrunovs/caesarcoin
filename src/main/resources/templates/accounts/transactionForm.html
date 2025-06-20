@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+
+<head>
+  <title>Caesarcoin - Cadastro de Transações</title>
+</head>
+
+<body>
+
+<h1>Cadastro de Transações</h1>
+
+<div th:text="${mensagem}" style="color: red"></div>
+
+<div th:if="${account == null}">
+  <form th:action="transaction" method="POST">
+    <label for="nuAccount">Número da conta</label>
+    <input type="text" id="nuAccount" name="nuAccount"  />
+    <button type="submit">Próximo</button>
+  </form>
+</div>
+
+<div th:if="${account != null}">
+  <ul>
+    <li>Conta:
+      <span th:text="${account.number}"></span>
+    </li>
+    <li>Correntista:
+      <span th:text="${account.accountOwner.name}"></span>
+    </li>
+    <li>Data abertura:
+      <span th:text="${account.dueDate}"></span>
+    </li>
+  </ul>
+
+  <div style="margin-bottom: 30px;"></div>
+
+  <h4>Informações da transação</h4>
+  <hr>
+  <form th:action="@{/accounts/transaction}" method="POST" th:object="${transaction}">
+    <input type="hidden" th:field="*{id}" />
+    <input type="hidden" th:value="${account.number}" id="nuAccount" name="nuAccount" />
+    <label for="description">Descrição</label>
+    <input type="text" th:field="*{description}" id="description" /> <br />
+
+    <label for="date">Data</label>
+    <input type="date" th:field="*{date}" id="date" /> <br />
+    <label for="value">Valor</label>
+    <input type="text" th:field="*{value}" id="value" /><br />
+    <label for="value">Categoria</label>
+    <select th:field="*{category.id}" id="nameCateg">
+      <option th:each="cat : ${categories}"
+              th:value="${cat.id}"
+              th:text="${cat.name}">
+      </option>
+    </select>
+    <br /><br />
+
+    <button type="submit">Cadastrar transação</button>
+  </form>
+</div>
+</body>
+
+</html>
