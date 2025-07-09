@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccountRepository extends JpaRepository<Account,Integer> {
 
-    Account findByAccountOwner(AccountOwner accountOwner);
+    List<Account> findByAccountOwner(AccountOwner accountOwner);
 
     @Query("from Account c left join fetch c.transactions t where c.number = :number")
      Account findByNumberWithTransactions(@Param("number") String number);

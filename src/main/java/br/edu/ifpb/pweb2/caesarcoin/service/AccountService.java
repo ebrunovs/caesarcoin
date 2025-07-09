@@ -46,7 +46,9 @@ public class AccountService implements Service<Account, Integer> {
         return accRepo.findByIdWithTransactions(idAccount);
     }
 
-
+    public List<Account> findByAccountOwner(AccountOwner accountOwner) {
+        return accRepo.findByAccountOwner(accountOwner);
+    }
 
 
 }

@@ -6,6 +6,8 @@ import br.edu.ifpb.pweb2.caesarcoin.model.Category;
 import br.edu.ifpb.pweb2.caesarcoin.model.Transaction;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +38,13 @@ public class AccountController {
     private AccountOwnerService accountOwnerService;
 
     @GetMapping("/form")
-    public ModelAndView getForm(ModelAndView model) {
+    public ModelAndView getForm(ModelAndView model, HttpSession session) {
+        AccountOwner user = (AccountOwner) session.getAttribute("user");
+        Account account = new Account();
+        account.setAccountOwner(user);
+        
         model.setViewName("accounts/form");
-        model.addObject("account", new Account(new AccountOwner()));
+        model.addObject("account", account);
         return model;
     }
 
@@ -118,15 +124,25 @@ public class AccountController {
 
 
     @GetMapping
-    public ModelAndView listAll(ModelAndView model){
-        model.addObject("accounts", accService.findAll());
+    public ModelAndView listAll(ModelAndView model, HttpSession session){
+        AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");
+        if (accountOwner != null && !accountOwner.isAdmin()) {
+            List<Account> userAccounts = accService.findByAccountOwner(accountOwner);
+            model.addObject("accounts", userAccounts);
+        } else {
+            model.addObject("accounts", accService.findAll());
+        }        
         model.setViewName("accounts/list");
         return model;
     }
 
 
     @PostMapping
-    public ModelAndView save(Account account, ModelAndView model, RedirectAttributes attr){
+    public ModelAndView save(Account account, ModelAndView model, RedirectAttributes attr, HttpSession session) {
+        AccountOwner user = (AccountOwner) session.getAttribute("user");
+        if (user != null) {
+            account.setAccountOwner(user);
+        }
         accService.save(account);
         attr.addFlashAttribute("message","Conta inserida com sucesso");
         model.setViewName("redirect:/accounts");
