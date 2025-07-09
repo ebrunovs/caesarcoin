@@ -25,10 +25,10 @@
                     <a th:classappend="${menu == 'home'} ? 'active'" th:href="@{/home}">Home</a>
 
                     <a th:classappend="${menu == 'accountowner'} ? 'active'" th:href="@{/accountowners}"
-                        th:if="${session.user != null and  session.user.admin}">Correntistas</a>
+                        th:if="${session.user != null and session.user.admin}">Correntistas</a>
 
                     <a th:classappend="${menu == 'transaction'} ? 'active'" th:href="@{/accounts/nuaccount}"
-                       th:if="${session.user != null and  session.user.admin}">Transações</a>
+                       th:if="${session.user != null and  !(session.user.admin)}">Transações</a>
 
                     <a th:classappend="${menu == 'account'} ? 'active'" th:href="@{/accounts}"
                         th:if="${session.user != null and  !(session.user.admin)}">Contas</a>
