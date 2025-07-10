@@ -49,8 +49,14 @@ public class AccountController {
     }
 
     @GetMapping("/nuaccount")
-    public String getNuAccount() {
-        return "accounts/transactionForm";
+    public ModelAndView getNuAccount(ModelAndView model, HttpSession session) {
+        AccountOwner user = (AccountOwner) session.getAttribute("user");
+        if (user != null) {
+            List<Account> userAccounts = accService.findByAccountOwner(user);
+            model.addObject("userAccounts", userAccounts);
+        }
+        model.setViewName("accounts/transactionForm");
+        return model;
     }
 
     @PostMapping(value = "/transaction")
@@ -148,9 +154,6 @@ public class AccountController {
         model.setViewName("redirect:/accounts");
         return model;
     }
-
-
-
 
     @GetMapping("/{id}")
     public ModelAndView getAccOwnerById(@PathVariable(value = "id") Integer id, ModelAndView model){

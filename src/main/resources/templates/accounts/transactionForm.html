@@ -14,7 +14,13 @@
 <div th:if="${account == null}">
   <form th:action="transaction" method="POST">
     <label for="nuAccount">Número da conta</label>
-    <input type="text" id="nuAccount" name="nuAccount"  />
+    <select id="nuAccount" name="nuAccount" required>
+      <option value="">-- Selecione uma conta --</option>
+      <option th:each="acc : ${userAccounts}" 
+              th:value="${acc.number}" 
+              th:text="'Conta: ' + ${acc.number} + ' - ' + ${acc.description}">
+      </option>
+    </select>
     <button type="submit">Próximo</button>
   </form>
 </div>
