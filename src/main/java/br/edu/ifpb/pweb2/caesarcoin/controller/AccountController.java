@@ -60,7 +60,7 @@ public class AccountController {
     }
 
     @PostMapping(value = "/transaction")
-    public ModelAndView postTransaction(String nuAccount, Transaction transaction, ModelAndView mav) {
+    public ModelAndView postTransaction(String nuAccount, Transaction transaction, ModelAndView mav, RedirectAttributes attr) {
 
         if (transaction.getId() != null) {
             Transaction existing = transactionService.findById(transaction.getId());
@@ -70,7 +70,9 @@ public class AccountController {
             existing.setDate(transaction.getDate());
             existing.setCategory(catService.findById(transaction.getCategory().getId()));
             transactionService.save(existing);
-            return addTransactionAccount(existingAccount.getId(), mav);
+
+            mav.setViewName("redirect:/accounts/" + existingAccount.getId() + "/transactions");
+            return mav;
         }
 
         if (nuAccount != null && transaction.getValue() == null) {
@@ -79,19 +81,23 @@ public class AccountController {
                 transaction.setCategory(new Category());
                 mav.addObject("account", account);
                 mav.addObject("transaction", transaction);
-
                 mav.setViewName("accounts/transactionForm");
+
             } else {
                 mav.addObject("mensagem", "Conta inexistente!");
-                mav.setViewName("accounts/transactionForm");
+                mav.setViewName("redirect:/accounts/nuaccount");
             }
         } else {
             Account account = accService.findByNumberWithTransactions(nuAccount);
             Integer categoryId = transaction.getCategory().getId();
             Category category = catService.findById(categoryId);
-            account.addTransaction(transaction,category);
+            account.addTransaction(transaction, category);
             accService.save(account);
-            return addTransactionAccount(account.getId(), mav);
+
+            // return addTransactionAccount(account.getId(), mav);
+
+            attr.addFlashAttribute("message", "Transação cadastrada com sucesso!");
+            mav.setViewName("redirect:/accounts/" + account.getId() + "/transactions");
         }
         return mav;
     }

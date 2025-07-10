@@ -2,7 +2,7 @@
 <html lang="pt_BR" xmlns:th="www.thymeleaf.org">
 
 <head>
-  <title>BitBank - Cadastro de Transações</title>
+  <title>CaesarCoin - Cadastro de Transações</title>
 </head>
 
 <body>
@@ -21,6 +21,9 @@
 
 <div style="margin-bottom: 30px;"> </div>
 
+<div th:text="${message}" style="color: green; margin-bottom: 20px;"></div>
+
+
 <table>
   <thead>
   <tr>
@@ -37,7 +40,7 @@
     <td th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}" />
     <td th:text="${#numbers.formatCurrency(transaction.value)}" style="text-align: right" />
     <td th:text="${transaction.type}" style="text-align: right" />
-    <td th:text="${transaction.category}" style="text-align: right" />
+    <td th:text="${transaction.category.name}" style="text-align: right" />
     <td><a th:href="@{/accounts/edit/{id}(id=${transaction.id})}">Editar</a></td>
 
   </tr>
