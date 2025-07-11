@@ -2,6 +2,8 @@ package br.edu.ifpb.pweb2.caesarcoin.model;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +33,8 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "id_account")
     private Account account;
-
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
 
 
