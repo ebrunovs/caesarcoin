@@ -22,15 +22,39 @@ public class CommentController {
     @Autowired
     private TransactionService transactionService;
 
-    @PostMapping
-    public ModelAndView save(Comment comment, Integer transactionId, ModelAndView model, RedirectAttributes attr) {
-        Transaction transaction = transactionService.findById(transactionId);
-        comment.setTransaction(transaction);
+    @PostMapping("/update")
+    public ModelAndView update(Comment comment, ModelAndView model, RedirectAttributes attr) {
+        Comment existingComment = commentService.findById(comment.getId());
+        if (existingComment == null) {
+            attr.addFlashAttribute("message", "Comentário não encontrado!");
+            model.setViewName("redirect:/transactions");
+            return model;
+        }
+        
+        // Preservar dados originais
+        comment.setCreatedAt(existingComment.getCreatedAt());
+        comment.setTransaction(existingComment.getTransaction());
+        
         commentService.save(comment);
         
-        attr.addFlashAttribute("message", "Comentário adicionado com sucesso!");
-        model.setViewName("redirect:/accounts/view/" + transactionId);
+        attr.addFlashAttribute("message", "Comentário atualizado com sucesso!");
+        model.setViewName("redirect:/transactions/view/" + comment.getTransaction().getId());
         return model;
+    }
+
+    @PostMapping("/delete/{id}")
+    public ModelAndView delete(@PathVariable(value = "id") Integer id, RedirectAttributes attr) {
+        Comment comment = commentService.findById(id);
+        if (comment == null) {
+            attr.addFlashAttribute("message", "Comentário não encontrado!");
+            return new ModelAndView("redirect:/transactions");
+        }
+        
+        Integer transactionId = comment.getTransaction().getId();
+        commentService.deleteById(id);
+        
+        attr.addFlashAttribute("message", "Comentário excluído com sucesso!");
+        return new ModelAndView("redirect:/transactions/view/" + transactionId);
     }
 
     @GetMapping
@@ -38,35 +62,5 @@ public class CommentController {
         model.addObject("comments", commentService.findAll());
         model.setViewName("comments/list");
         return model;
-    }
-
-    @GetMapping("/{id}")
-    public ModelAndView getById(@PathVariable(value = "id") Integer id, ModelAndView model) {
-        Comment comment = commentService.findById(id);
-        model.addObject("comment", comment);
-        model.setViewName("comments/form");
-        return model;
-    }
-
-    @GetMapping("/transaction/{transactionId}")
-    public ModelAndView getByTransaction(@PathVariable(value = "transactionId") Integer transactionId, ModelAndView model) {
-        Transaction transaction = transactionService.findById(transactionId);
-        List<Comment> comments = commentService.findByTransactionOrderByCreatedAtDesc(transaction);
-        
-        model.addObject("transaction", transaction);
-        model.addObject("comments", comments);
-        model.setViewName("comments/list");
-        return model;
-    }
-
-    @PostMapping("/delete/{id}")
-    public ModelAndView delete(@PathVariable(value = "id") Integer id, RedirectAttributes attr) {
-        Comment comment = commentService.findById(id);
-        Integer transactionId = comment.getTransaction().getId();
-        
-        commentService.deleteById(id);
-        
-        attr.addFlashAttribute("message", "Comentário removido com sucesso!");
-        return new ModelAndView("redirect:/accounts/view/" + transactionId);
     }
 }

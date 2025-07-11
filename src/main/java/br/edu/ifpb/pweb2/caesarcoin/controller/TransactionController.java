@@ -1,14 +1,15 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.Account;
+import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.model.Category;
-import br.edu.ifpb.pweb2.caesarcoin.model.Comment;
 import br.edu.ifpb.pweb2.caesarcoin.model.Transaction;
+import br.edu.ifpb.pweb2.caesarcoin.model.Comment;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountService;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
-import br.edu.ifpb.pweb2.caesarcoin.service.CommentService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import br.edu.ifpb.pweb2.caesarcoin.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -36,28 +37,19 @@ public class TransactionController {
     @Autowired
     private CommentService commentService;
 
-
-    @PostMapping
-    public ModelAndView save(Transaction transaction, ModelAndView model, RedirectAttributes attr){
-        transactionService.save(transaction);
-        attr.addFlashAttribute("message", "Transação inserida com sucesso!");
-        model.setViewName("redirect:transactions");
-        return model;
-    }
-
-
-    @GetMapping
-    public ModelAndView listAll(ModelAndView model){
-        model.addObject("transactions", transactionService.findAll());
-        model.setViewName("transactions/list");
-        return model;
-    }
-
     @GetMapping("/view/{id}")
-    public ModelAndView viewTransaction(@PathVariable(value = "id") Integer id, ModelAndView model) {
+    public ModelAndView viewTransaction(@PathVariable(value = "id") Integer id, 
+                                      @RequestParam(value = "editComment", required = false) Integer editCommentId,
+                                      ModelAndView model) {
         Transaction transaction = transactionService.findById(id);
         model.addObject("transaction", transaction);
         model.addObject("comment", new Comment());
+        
+        // Se há um comentário sendo editado, adiciona ao modelo
+        if (editCommentId != null) {
+            model.addObject("editingComment", editCommentId);
+        }
+        
         model.setViewName("accounts/transactionView");
         return model;
     }
@@ -73,6 +65,18 @@ public class TransactionController {
         return model;
     }
 
+    @PostMapping
+    public ModelAndView save(Transaction transaction, ModelAndView model, RedirectAttributes attr){
+        transactionService.save(transaction);
+        attr.addFlashAttribute("message", "Transação inserida com sucesso!");
+        model.setViewName("redirect:transactions");
+        return model;
+    }
 
-
+    @GetMapping
+    public ModelAndView listAll(ModelAndView model){
+        model.addObject("transactions", transactionService.findAll());
+        model.setViewName("transactions/list");
+        return model;
+    }
 }
