@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+
+<head>
+  <title>CaesarCoin - Visualizar Transação</title>
+</head>
+
+<body>
+
+<h1>Detalhes da Transação</h1>
+
+<div th:text="${message}" style="color: green; margin-bottom: 20px;"></div>
+
+<div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
+  <h3>Informações da Transação</h3>
+  <ul>
+    <li><strong>Descrição:</strong> <span th:text="${transaction.description}"></span></li>
+    <li><strong>Data:</strong> <span th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}"></span></li>
+    <li><strong>Valor:</strong> <span th:text="${#numbers.formatCurrency(transaction.value)}"></span></li>
+    <li><strong>Tipo:</strong> <span th:text="${transaction.type}"></span></li>
+    <li><strong>Categoria:</strong> <span th:text="${transaction.category.name}"></span></li>
+    <li><strong>Conta:</strong> <span th:text="${transaction.account.number}"></span></li>
+  </ul>
+</div>
+
+<div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
+  <h3>Comentários</h3>
+  
+  <div th:if="${transaction.comments.isEmpty()}">
+    <p>Nenhum comentário ainda.</p>
+  </div>
+  
+  <div th:each="comment : ${transaction.comments}" style="border-bottom: 1px solid #eee; padding: 10px 0;">
+    <p><strong>Data:</strong> <span th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+    <p th:text="${comment.text}"></p>
+  </div>
+</div>
+
+<div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
+  <h3>Adicionar Comentário</h3>
+  <form th:action="@{/transactions/comment}" method="POST" th:object="${comment}">
+    <input type="hidden" name="transactionId" th:value="${transaction.id}" />
+    
+    <label for="text">Comentário:</label><br>
+    <textarea th:field="*{text}" rows="4" cols="50" placeholder="Digite seu comentário aqui..." required></textarea><br><br>
+    
+    <button type="submit">Adicionar Comentário</button>
+  </form>
+</div>
+
+<div>
+  <a th:href="@{/accounts/{id}/transactions(id=${transaction.account.id})}">Voltar para lista de transações</a>
+</div>
+
+</body>
+
+</html>

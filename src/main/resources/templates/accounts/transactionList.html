@@ -41,7 +41,10 @@
     <td th:text="${#numbers.formatCurrency(transaction.value)}" style="text-align: right" />
     <td th:text="${transaction.type}" style="text-align: right" />
     <td th:text="${transaction.category.name}" style="text-align: right" />
-    <td><a th:href="@{/accounts/edit/{id}(id=${transaction.id})}">Editar</a></td>
+    <td>
+      <a th:href="@{/transactions/view/{id}(id=${transaction.id})}">Visualizar</a> |
+      <a th:href="@{/accounts/edit/{id}(id=${transaction.id})}">Editar</a>
+    </td>
 
   </tr>
   </tbody>
