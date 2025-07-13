@@ -11,20 +11,19 @@
 <form th:action="@{/categories}" method="POST" th:object="${category}">
     <input type="hidden" th:field="*{id}" />
 
-    <label for="category">Nome</label>
-    <select th:field="*{name}">
-        <option th:each="cat : ${categoryItens}"
-                th:text="${cat}" th:value="${cat}">
-        </option>
-    </select>
-    <br /><br />
-
+    <label for="category">Categoria</label>
+    <input type="text" th:field="*{name}" id="category" required /><br /><br />
     <label for="Active">Ativo?</label>
     <input type="checkbox" th:field="*{isActive}"><br><br>
     <label for="Kind">Natureza</label>
-    <input type="text" th:field="*{kind}"><br /><br />
+    <select th:field="*{kind}">
+        <option value="">Selecione a natureza</option>
+        <option value="ENTRADA">ENTRADA</option>
+        <option value="SAIDA">SAIDA</option>
+        <option value="INVESTIMENTO">INVESTIMENTO</option>
+    </select><br /><br />
     <label for="ord">Ordem</label>
-    <input type="text" th:field="*{ord}"><br /><br />
+    <input type="number" th:field="*{ord}" min="1"><br /><br />
 
     <hr>
 

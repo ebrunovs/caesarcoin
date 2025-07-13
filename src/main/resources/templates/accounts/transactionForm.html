@@ -27,13 +27,13 @@
 
 <div th:if="${account != null}">
   <ul>
-    <li>Conta:
+    <li>Número da Conta:
       <span th:text="${account.number}"></span>
     </li>
-    <li>Correntista:
-      <span th:text="${account.accountOwner.name}"></span>
+    <li>Tipo:
+      <span th:text="${account.type}"></span>
     </li>
-    <li>Data abertura:
+    <li>Data Fechamento:
       <span th:text="${account.dueDate}"></span>
     </li>
   </ul>
@@ -47,18 +47,25 @@
     <input type="hidden" th:value="${account.number}" id="nuAccount" name="nuAccount" />
     <label for="description">Descrição</label>
     <input type="text" th:field="*{description}" id="description" /> <br />
+    <label for="value">Valor</label>
+    <input type="text" th:field="*{value}" id="value" /><br />
     <label for="type">Tipo</label>
-    <input type="text" th:field="*{type}" id="type" /> <br />
+    <select th:field="*{type}" id="type" onchange="updateCategories()">
+      <option value="">Selecione o tipo</option>
+      <option value="ENTRADA">ENTRADA</option>
+      <option value="SAIDA">SAIDA</option>
+      <option value="INVESTIMENTO">INVESTIMENTO</option>
+    </select> <br />
 
     <label for="date">Data</label>
     <input type="date" th:field="*{date}" id="date" /> <br />
-    <label for="value">Valor</label>
-    <input type="text" th:field="*{value}" id="value" /><br />
-    <label for="value">Categoria</label>
+    <label for="category">Categoria</label>
     <select th:field="*{category.id}" id="nameCateg">
+      <option value="">Selecione uma categoria</option>
       <option th:each="cat : ${categories}"
               th:value="${cat.id}"
-              th:text="${cat.name}">
+              th:text="${cat.name}"
+              th:data-type="${cat.kind}">
       </option>
     </select>
     <br /><br />
@@ -66,6 +73,38 @@
     <button type="submit">Cadastrar transação</button>
   </form>
 </div>
+
+<script>
+function updateCategories() {
+    const typeSelect = document.getElementById('type');
+    const categorySelect = document.getElementById('nameCateg');
+    const selectedType = typeSelect.value;
+    
+    // Limpar a seleção atual
+    categorySelect.value = '';
+    
+    // Mostrar/ocultar opções baseado no tipo selecionado
+    const options = categorySelect.querySelectorAll('option');
+    options.forEach(option => {
+        if (option.value === '') {
+            option.style.display = 'block'; // Sempre mostrar a opção padrão
+        } else {
+            const categoryType = option.getAttribute('data-type');
+            if (selectedType === '' || categoryType === selectedType) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Inicializar o filtro quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    updateCategories();
+});
+</script>
+
 </body>
 
 </html>

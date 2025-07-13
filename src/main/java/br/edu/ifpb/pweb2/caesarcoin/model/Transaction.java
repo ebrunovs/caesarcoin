@@ -25,7 +25,10 @@ public class Transaction {
     private LocalDate date;
     private String description;
     private Double value;
-    private String type;
+    
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
+    
     @ManyToOne
     @JoinColumn(name = "id_category")
     private Category category;
@@ -34,7 +37,5 @@ public class Transaction {
     private Account account;
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
-
-
 
 }

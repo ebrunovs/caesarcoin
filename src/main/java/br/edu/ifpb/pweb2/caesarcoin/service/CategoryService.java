@@ -1,6 +1,7 @@
 package br.edu.ifpb.pweb2.caesarcoin.service;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.Category;
+import br.edu.ifpb.pweb2.caesarcoin.model.TransactionType;
 import br.edu.ifpb.pweb2.caesarcoin.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,8 +29,19 @@ public class CategoryService implements Service<Category, Integer> {
         return catRepo.save(category);
     }
 
-
     public Category findByName(String name ){
         return catRepo.findByName(name);
+    }
+    
+    public List<Category> findByTransactionType(TransactionType type) {
+        return catRepo.findByKindAndIsActive(type, true);
+    }
+    
+    public List<Category> findAllByTransactionType(TransactionType type) {
+        return catRepo.findByKind(type);
+    }
+    
+    public List<Category> findActiveByTransactionTypeOrderedByOrd(TransactionType type) {
+        return catRepo.findByKindAndIsActiveOrderByOrd(type, true);
     }
 }

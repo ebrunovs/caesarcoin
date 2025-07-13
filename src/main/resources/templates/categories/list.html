@@ -29,10 +29,10 @@
   <tbody>
   <tr th:each="category : ${categories}">
     <td th:text="${category.id}"></td>
-    <td><a th:text="${category.name}"></a></td>
-    <td><a th:text="${category.isActive}"></a></td>
-    <td><a th:text="${category.kind}"></a></td>
-    <td><a th:text="${category.ord}"></a></td>
+    <td><a th:href="@{/categories/{id}(id=${category.id})}" th:text="${category.name}"></a></td>
+    <td th:text="${category.isActive ? 'Sim' : 'Não'}" style="text-align: center;"></td>
+    <td th:text="${category.kind}" style="text-align: center;"></td>
+    <td th:text="${category.ord}" style="text-align: center;"></td>
   </tr>
   </tbody>
 </table>
