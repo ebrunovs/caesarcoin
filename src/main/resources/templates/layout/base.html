@@ -2,7 +2,7 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>CaesarCoin - Home</title>
+    <title th:text="${pageTitle} ?: 'CaesarCoin'">CaesarCoin</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
@@ -23,50 +23,51 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-info">
-                    <h3 th:text="${session.user.name} ?: 'Usuário'">Usuário</h3>
-                    <p th:text="${session.user.email} ?: 'email@domain.com'">email@domain.com</p>
+                    <h3 th:text="${session.user.name} ?: 'Usuário'">Daniela Laurent</h3>
+                    <p th:text="${session.user.email} ?: 'email@domain.com'">danielaLau@gmail.com</p>
                 </div>
             </div>
             
             <!-- Navigation Menu -->
             <ul class="nav-menu">
-                <li class="nav-item active">
+                <li class="nav-item" th:classappend="${menu == 'home'} ? 'active'">
                     <a th:href="@{/home}" class="nav-link">
                         <i class="fas fa-home"></i>
                         <span>Home</span>
                     </a>
                 </li>
                 
-                <li class="nav-item" th:if="${session.user != null and session.user.admin}">
+                <li class="nav-item" th:classappend="${menu == 'accountowner'} ? 'active'"
+                    th:if="${session.user != null and session.user.admin}">
                     <a th:href="@{/accountowners}" class="nav-link">
                         <i class="fas fa-users"></i>
                         <span>Correntistas</span>
                     </a>
                 </li>
                 
-                <li class="nav-item">
+                <li class="nav-item" th:classappend="${menu == 'transaction'} ? 'active'">
                     <a th:href="@{/accounts/nuaccount}" class="nav-link">
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transações</span>
                     </a>
                 </li>
                 
-                <li class="nav-item">
+                <li class="nav-item" th:classappend="${menu == 'category'} ? 'active'">
                     <a th:href="@{/categories}" class="nav-link">
                         <i class="fas fa-tags"></i>
                         <span>Categorias</span>
                     </a>
                 </li>
                 
-                <li class="nav-item">
+                <li class="nav-item" th:classappend="${menu == 'account'} ? 'active'">
                     <a th:href="@{/accounts}" class="nav-link">
                         <i class="fas fa-credit-card"></i>
                         <span>Minhas Contas</span>
                     </a>
                 </li>
                 
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
+                <li class="nav-item" th:classappend="${menu == 'analytics'} ? 'active'">
+                    <a th:href="@{/analytics}" class="nav-link">
                         <i class="fas fa-chart-bar"></i>
                         <span>Análise de gastos</span>
                     </a>
@@ -93,33 +94,10 @@
             
             <!-- Page Content -->
             <div class="content-area">
-                <div class="caixa">
-                    <div class="caixa-titulo">
-                        <span>CaesarCoin</span>
-                    </div>
-                    <div class="caixa-corpo">
-                        <p>Este é o CaesarCoin, o seu banco digital muito mais acessível.</p>
-
-                        <div th:if="${session.user != null and session.user.admin}">
-                            <div>Como administrador, você poderá:</div>
-                            <ul>
-                                <li>
-                                    Adicionar ou consultar correntistas cadastrados usando o menu
-                                    <strong>Correntistas</strong>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div>Como cliente, você poderá realizar operações na sua conta:</div>
-                        <ul>
-                            <li>
-                                Adicionar ou consultar contas cadastradas usando o menu
-                                <strong>Minhas Contas</strong>
-                            </li>
-                            <li>Realizar créditos</li>
-                            <li>Realizar pagamentos</li>
-                            <li>Visualizar análise de gastos</li>
-                        </ul>
+                <div th:replace="${contentFragment}">
+                    <div class="default-content">
+                        <h1>Bem-vindo ao CaesarCoin</h1>
+                        <p>Seu banco digital mais acessível.</p>
                     </div>
                 </div>
             </div>
