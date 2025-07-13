@@ -34,8 +34,6 @@ public class AccountController {
 
     @Autowired
     private TransactionService transactionService;
-    @Autowired
-    private AccountOwnerService accountOwnerService;
 
     @GetMapping("/form")
     public ModelAndView getForm(ModelAndView model, HttpSession session) {

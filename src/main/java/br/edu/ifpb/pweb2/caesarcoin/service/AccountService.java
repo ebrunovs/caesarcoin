@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.Account;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
-import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountRepository;
 
 @Component

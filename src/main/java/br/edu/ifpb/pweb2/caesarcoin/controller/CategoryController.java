@@ -1,7 +1,5 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
-import br.edu.ifpb.pweb2.caesarcoin.model.Account;
-import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.model.Category;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
