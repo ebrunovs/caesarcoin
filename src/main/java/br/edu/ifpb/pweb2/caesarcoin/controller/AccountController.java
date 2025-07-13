@@ -136,7 +136,7 @@ public class AccountController {
     @GetMapping
     public ModelAndView listAll(ModelAndView model, HttpSession session){
         AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");
-        if (accountOwner != null && !accountOwner.isAdmin()) {
+        if (accountOwner != null) {
             List<Account> userAccounts = accService.findByAccountOwner(accountOwner);
             model.addObject("accounts", userAccounts);
         } else {

@@ -11,14 +11,12 @@
 
 <body>
     <div>
-        <!-- Logo/Header -->
         <div class="logo-bar">
             <span class="logo-font">
                 <img th:src="@{/images/caesarcoin-header.png}" alt="CaesarCoin logo" />
             </span>
         </div>
 
-        <!-- Menu de Navegação -->
         <div>
             <nav class="menu-bar">
                 <div class="menu-links">
@@ -26,15 +24,9 @@
 
                     <a th:classappend="${menu == 'accountowner'} ? 'active'" th:href="@{/accountowners}"
                         th:if="${session.user != null and session.user.admin}">Correntistas</a>
-
-                    <a th:classappend="${menu == 'transaction'} ? 'active'" th:href="@{/accounts/nuaccount}"
-                       th:if="${session.user != null and  !(session.user.admin)}">Transações</a>
-
-                    <a th:classappend="${menu == 'account'} ? 'active'" th:href="@{/accounts}"
-                        th:if="${session.user != null and  !(session.user.admin)}">Contas</a>
-
-                    <a th:classappend="${menu == 'category'} ? 'active'" th:href="@{/categories}"
-                       th:if="${session.user != null and  !(session.user.admin)}">Categorias</a>
+                    <a th:classappend="${menu == 'transaction'} ? 'active'" th:href="@{/accounts/nuaccount}">Transações</a>
+                    <a th:classappend="${menu == 'account'} ? 'active'" th:href="@{/accounts}">Contas</a>
+                    <a th:classappend="${menu == 'category'} ? 'active'" th:href="@{/categories}">Categorias</a>
                 </div>
                 <div class="user-info">
                     <span th:if="${session.user != null}" th:text="${session.user.email}"></span>
@@ -45,7 +37,6 @@
             </nav>
         </div>
 
-        <!-- Conteúdo principal -->
         <div class="conteudo">
             <div class="caixa">
                 <div class="caixa-titulo">
