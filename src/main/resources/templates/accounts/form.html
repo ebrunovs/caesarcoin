@@ -15,21 +15,22 @@
         <input type="text" th:field="*{number}" /><br /><br />
 
         <label for="accountowner">Correntista</label>
-        <!-- <select th:field="*{accountOwner.id}">
-            <option th:each="acc : ${accountOwnerItens}"
-                    th:if="${!acc.admin}"
-                    th:value="${acc.id}"
-                    th:text="${acc.name}">
-            </option>
-        </select> -->
         <input type="text" th:value="${account.accountOwner.name}" readonly />
 
         <br /><br />
 
-        <label for="data">Data</label>
-        <input type="date" th:field="*{dueDate}" /><br /><br />
         <label for="type">Tipo</label>
-        <input type="text" th:field="*{type}"><br /><br />
+        <select th:field="*{type}" id="typeSelect" onchange="toggleDateField()">
+            <option value="">Selecione o tipo</option>
+            <option value="CARTAO">CARTAO</option>
+            <option value="CORRENTE">CORRENTE</option>
+        </select><br /><br />
+        
+        <div id="dateField" style="display: none;">
+            <label for="data">Data</label>
+            <input type="date" th:field="*{dueDate}" /><br /><br />
+        </div>
+        
         <label for="description">Descrição</label>
        <input type="text" th:field="*{description}"><br /><br />
 
@@ -38,6 +39,24 @@
         <button type="submit">Salvar</button>
         <a th:href="@{/accounts}">Cancelar</a>
     </form>
+
+    <script>
+        function toggleDateField() {
+            const typeSelect = document.getElementById('typeSelect');
+            const dateField = document.getElementById('dateField');
+            
+            if (typeSelect.value === 'CARTAO') {
+                dateField.style.display = 'block';
+            } else {
+                dateField.style.display = 'none';
+            }
+        }
+        
+        // Verifica o valor inicial quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleDateField();
+        });
+    </script>
 </body>
 
 </html>

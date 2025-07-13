@@ -20,16 +20,17 @@
         <thead>
             <tr>
                 <th>Número</th>
-                <th>Correntista</th>
-                <th style="text-align: center;">Data abertura</th>
+                <th>Descrição</th>
+                <th style="text-align: center;">Dia Fechamento</th>
+                <th>Tipo</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="account : ${accounts}">
                 <td><a th:href="@{/accounts/{id}(id=${account.id})}" th:text="${account.number}"></a></td>
-                <td><a th:text="${account.accountOwner.name}"></a></td>
-
-                <td th:text="${#temporals.format(account.dueDate, 'dd/MM/yyyy')}" style="text-align: center;" />
+                <td><a th:text="${account.description}"></a></td>
+                <td th:text="${account.type == 'CARTAO' ? #temporals.format(account.dueDate, 'dd/MM/yyyy') : '--/--'}" style="text-align: center;" />
+                <td><a th:text="${account.type}"></a></td>
             </tr>
         </tbody>
     </table>
