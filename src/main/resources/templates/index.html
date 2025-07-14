@@ -1,130 +1,37 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Home', contentFragment=~{:: content})">
 
-<head>
-    <title>CaesarCoin - Home</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <link rel="icon" th:href="@{/images/favicon.ico}" type="image/x-icon" />
-    
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
+<div th:fragment="content">
+    <div class="caixa">
+        <div class="caixa-titulo">
+            <span>CaesarCoin</span>
+        </div>
+        <div class="caixa-corpo">
+            <p>Este é o CaesarCoin, o seu banco digital muito mais acessível.</p>
 
-<body>
-    <div class="layout-container">
-        <!-- Sidebar -->
-        <nav class="sidebar" th:if="${session.user != null}">
-            <!-- User Profile Section -->
-            <div class="user-profile">
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="user-info">
-                    <h3 th:text="${session.user.name} ?: 'Usuário'">Usuário</h3>
-                    <p th:text="${session.user.email} ?: 'email@domain.com'">email@domain.com</p>
-                </div>
+            <div th:if="${session.user != null and session.user.admin}">
+                <div>Como administrador, você poderá:</div>
+                <ul>
+                    <li>
+                        Adicionar ou consultar correntistas cadastrados usando o menu
+                        <strong>Correntistas</strong>
+                    </li>
+                </ul>
             </div>
             
-            <!-- Navigation Menu -->
-            <ul class="nav-menu">
-                <li class="nav-item active">
-                    <a th:href="@{/home}" class="nav-link">
-                        <i class="fas fa-home"></i>
-                        <span>Home</span>
-                    </a>
+            <div>Como cliente, você poderá realizar operações na sua conta:</div>
+            <ul>
+                <li>
+                    Adicionar ou consultar contas cadastradas usando o menu
+                    <strong>Minhas Contas</strong>
                 </li>
-                
-                <li class="nav-item" th:if="${session.user != null and session.user.admin}">
-                    <a th:href="@{/accountowners}" class="nav-link">
-                        <i class="fas fa-users"></i>
-                        <span>Correntistas</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a th:href="@{/accounts/nuaccount}" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span>Transações</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a th:href="@{/categories}" class="nav-link">
-                        <i class="fas fa-tags"></i>
-                        <span>Categorias</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a th:href="@{/accounts}" class="nav-link">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Minhas Contas</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Análise de gastos</span>
-                    </a>
-                </li>
+                <li>Realizar créditos</li>
+                <li>Realizar pagamentos</li>
+                <li>Visualizar análise de gastos</li>
             </ul>
-            
-            <!-- Logout Button -->
-            <div class="sidebar-footer">
-                <a th:href="@{/auth/logout}" class="logout-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
-                </a>
-            </div>
-        </nav>
-        
-        <!-- Main Content -->
-        <div class="main-content" th:classappend="${session.user == null} ? 'full-width'">
-            <!-- Top Bar (only when not logged in) -->
-            <div class="top-bar" th:if="${session.user == null}">
-                <div class="logo-section">
-                    <img th:src="@{/images/caesarcoin-header.png}" alt="CaesarCoin logo" />
-                </div>
-            </div>
-            
-            <!-- Page Content -->
-            <div class="content-area">
-                <div class="caixa">
-                    <div class="caixa-titulo">
-                        <span>CaesarCoin</span>
-                    </div>
-                    <div class="caixa-corpo">
-                        <p>Este é o CaesarCoin, o seu banco digital muito mais acessível.</p>
-
-                        <div th:if="${session.user != null and session.user.admin}">
-                            <div>Como administrador, você poderá:</div>
-                            <ul>
-                                <li>
-                                    Adicionar ou consultar correntistas cadastrados usando o menu
-                                    <strong>Correntistas</strong>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div>Como cliente, você poderá realizar operações na sua conta:</div>
-                        <ul>
-                            <li>
-                                Adicionar ou consultar contas cadastradas usando o menu
-                                <strong>Minhas Contas</strong>
-                            </li>
-                            <li>Realizar créditos</li>
-                            <li>Realizar pagamentos</li>
-                            <li>Visualizar análise de gastos</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-</body>
+</div>
 
 </html>
