@@ -41,6 +41,7 @@ public class AccountController {
         Account account = new Account();
         account.setAccountOwner(user);
         
+        model.addObject("menu", "account");
         model.setViewName("accounts/form");
         model.addObject("account", account);
         return model;
@@ -53,6 +54,7 @@ public class AccountController {
             List<Account> userAccounts = accService.findByAccountOwner(user);
             model.addObject("userAccounts", userAccounts);
         }
+        model.addObject("menu", "transaction");
         model.setViewName("accounts/transactionForm");
         return model;
     }
@@ -77,6 +79,7 @@ public class AccountController {
             Account account = accService.findByNumberWithTransactions(nuAccount);
             if (account != null) {
                 transaction.setCategory(new Category());
+                mav.addObject("menu", "transaction");
                 mav.addObject("account", account);
                 mav.addObject("transaction", transaction);
                 mav.setViewName("accounts/transactionForm");
@@ -104,6 +107,7 @@ public class AccountController {
     @GetMapping(value = "/{id}/transactions")
     public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount, ModelAndView mav) {
         Account account = accService.findByIdWithTransactions(idAccount);
+        mav.addObject("menu", "transaction");
         mav.addObject("account", account);
         mav.setViewName("accounts/transactionList");
         return mav;
@@ -113,6 +117,7 @@ public class AccountController {
     @GetMapping("/edit/{id}")
     public ModelAndView getTransactionById(@PathVariable(value = "id") Integer id, ModelAndView model) {
         Transaction transaction = transactionService.findById(id);
+        model.addObject("menu", "transaction");
         model.addObject("account", transaction.getAccount());
         model.addObject("transaction", transaction);
         model.setViewName("accounts/transactionForm");
@@ -142,6 +147,7 @@ public class AccountController {
         } else {
             model.addObject("accounts", accService.findAll());
         }        
+        model.addObject("menu", "account");
         model.setViewName("accounts/list");
         return model;
     }

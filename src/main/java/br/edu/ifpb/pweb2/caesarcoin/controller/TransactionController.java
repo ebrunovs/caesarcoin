@@ -25,6 +25,7 @@ public class TransactionController {
                                       @RequestParam(value = "editComment", required = false) Integer editCommentId,
                                       ModelAndView model) {
         Transaction transaction = transactionService.findById(id);
+        model.addObject("menu", "transaction");
         model.addObject("transaction", transaction);
         model.addObject("comment", new Comment());
         

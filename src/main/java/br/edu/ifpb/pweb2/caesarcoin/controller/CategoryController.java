@@ -34,6 +34,7 @@ public class CategoryController {
 
     @GetMapping("/form")
     public ModelAndView getForm(ModelAndView model) {
+        model.addObject("menu", "category");
         model.setViewName("categories/form");
         model.addObject("category", new Category());
         return model;
@@ -52,6 +53,7 @@ public class CategoryController {
 
     @GetMapping
     public ModelAndView listAll(ModelAndView model){
+        model.addObject("menu", "category");
         model.addObject("categories", catService.findAll());
         model.setViewName("categories/list");
         return model;

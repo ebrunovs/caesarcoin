@@ -21,6 +21,7 @@ public class AccountOwnerController {
 
     @GetMapping("/form")
     public ModelAndView getForm(AccountOwner accOwner, ModelAndView model){
+        model.addObject("menu", "accountowner");
         model.addObject("accountowner", accOwner);
         model.setViewName("accountowners/form");
         return model;
@@ -36,6 +37,7 @@ public class AccountOwnerController {
 
     @GetMapping
     public ModelAndView listAll(ModelAndView model){
+        model.addObject("menu", "accountowner");
         model.addObject("accountowners", accOwnerService.findAll());
         model.setViewName("accountowners/list");
         return model;
@@ -43,6 +45,7 @@ public class AccountOwnerController {
 
     @GetMapping("/{id}")
     public ModelAndView getAccOwnerById(@PathVariable(value = "id") Integer id, ModelAndView model) {
+        model.addObject("menu", "accountowner");
         model.setViewName("accountowners/form");
         model.addObject("accountowner", accOwnerService.findById(id));
         return model;
