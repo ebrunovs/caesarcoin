@@ -1,11 +1,8 @@
-<!doctype>
-<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Contas Cadastradas', contentFragment=~{:: content})">
 
-<head>
-    <title>CaesarCoin - Contas Cadastradas</title>
-</head>
-
-<body>
+<div th:fragment="content">
     <h1>Contas Cadastradas</h1>
     <hr />
 
@@ -34,6 +31,6 @@
             </tr>
         </tbody>
     </table>
-</body>
+</div>
 
 </html>

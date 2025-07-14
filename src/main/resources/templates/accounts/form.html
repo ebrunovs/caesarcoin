@@ -1,11 +1,8 @@
-<!doctype html>
-<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Cadastro de Conta', contentFragment=~{:: content})">
 
-<head>
-    <title>CaesarCoin - Cadastro de Conta</title>
-</head>
-
-<body>
+<div th:fragment="content">
     <h1 class="mb-3">Cadastro de conta</h1>
 
     <form th:action="@{/accounts}" method="POST" th:object="${account}">
@@ -57,6 +54,6 @@
             toggleDateField();
         });
     </script>
-</body>
+</div>
 
 </html>
