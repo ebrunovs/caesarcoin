@@ -6,98 +6,118 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" th:href="@{/images/favicon.ico}" type="image/x-icon" />
     
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            500: '#f97316',
+                            600: '#ea580c'
+                        }
+                    },
+                    spacing: {
+                        '70': '17.5rem'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
-<body>
-    <div class="layout-container">
+<body class="bg-gray-100 font-sans text-gray-800">
+    <div class="flex h-screen">
         <!-- Sidebar -->
-        <nav class="sidebar" th:if="${session.user != null}">
+        <nav class="w-70 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col shadow-lg fixed h-full left-0 top-0 z-50" th:if="${session.user != null}">
             <!-- User Profile Section -->
-            <div class="user-profile">
-                <div class="user-avatar">
+            <div class="p-6 border-b border-white border-opacity-10 flex items-center gap-4">
+                <div class="w-11 h-11 bg-orange-500 rounded-full flex items-center justify-center text-xl text-white flex-shrink-0">
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-info">
-                    <h3 th:text="${session.user.name} ?: 'Usuário'">Daniela Laurent</h3>
-                    <p th:text="${session.user.email} ?: 'email@domain.com'">danielaLau@gmail.com</p>
+                    <h3 class="text-sm font-semibold mb-1 text-white leading-tight" th:text="${session.user.name} ?: 'Usuário'">Daniela Laurent</h3>
+                    <p class="text-xs text-gray-400 leading-tight" th:text="${session.user.email} ?: 'email@domain.com'">danielaLau@gmail.com</p>
                 </div>
             </div>
             
             <!-- Navigation Menu -->
-            <ul class="nav-menu">
-                <li class="nav-item" th:classappend="${menu == 'home'} ? 'active'">
-                    <a th:href="@{/home}" class="nav-link">
-                        <i class="fas fa-home"></i>
+            <ul class="py-4 flex-1">
+                <li class="mb-0.5" th:classappend="${menu == 'home'} ? 'bg-orange-500 border-l-4 border-orange-400'">
+                    <a th:href="@{/home}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-home mr-3 w-4 text-center text-base"></i>
                         <span>Home</span>
                     </a>
                 </li>
                 
-                <li class="nav-item" th:classappend="${menu == 'accountowner'} ? 'active'"
+                <li class="mb-0.5" th:classappend="${menu == 'accountowner'} ? 'bg-orange-500 border-l-4 border-orange-400'"
                     th:if="${session.user != null and session.user.admin}">
-                    <a th:href="@{/accountowners}" class="nav-link">
-                        <i class="fas fa-users"></i>
+                    <a th:href="@{/accountowners}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-users mr-3 w-4 text-center text-base"></i>
                         <span>Correntistas</span>
                     </a>
                 </li>
                 
-                <li class="nav-item" th:classappend="${menu == 'transaction'} ? 'active'">
-                    <a th:href="@{/accounts/nuaccount}" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i>
+                <li class="mb-0.5" th:classappend="${menu == 'transaction'} ? 'bg-orange-500 border-l-4 border-orange-400'">
+                    <a th:href="@{/accounts/nuaccount}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-exchange-alt mr-3 w-4 text-center text-base"></i>
                         <span>Transações</span>
                     </a>
                 </li>
                 
-                <li class="nav-item" th:classappend="${menu == 'category'} ? 'active'">
-                    <a th:href="@{/categories}" class="nav-link">
-                        <i class="fas fa-tags"></i>
+                <li class="mb-0.5" th:classappend="${menu == 'category'} ? 'bg-orange-500 border-l-4 border-orange-400'">
+                    <a th:href="@{/categories}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-tags mr-3 w-4 text-center text-base"></i>
                         <span>Categorias</span>
                     </a>
                 </li>
                 
-                <li class="nav-item" th:classappend="${menu == 'account'} ? 'active'">
-                    <a th:href="@{/accounts}" class="nav-link">
-                        <i class="fas fa-credit-card"></i>
+                <li class="mb-0.5" th:classappend="${menu == 'account'} ? 'bg-orange-500 border-l-4 border-orange-400'">
+                    <a th:href="@{/accounts}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-wallet mr-3 w-4 text-center text-base"></i>
                         <span>Minhas Contas</span>
                     </a>
                 </li>
                 
-                <!-- <li class="nav-item" th:classappend="${menu == 'analytics'} ? 'active'">
-                    <a th:href="@{/analytics}" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
+                <li class="mb-0.5" th:classappend="${menu == 'analytics'} ? 'bg-orange-500 border-l-4 border-orange-400'">
+                    <a th:href="@{/analytics}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
+                        <i class="fas fa-chart-bar mr-3 w-4 text-center text-base"></i>
                         <span>Análise de gastos</span>
                     </a>
-                </li> -->
+                </li>
             </ul>
             
             <!-- Logout Button -->
-            <div class="sidebar-footer">
-                <a th:href="@{/auth/logout}" class="logout-link">
-                    <i class="fas fa-sign-out-alt"></i>
+            <div class="p-4">
+                <a th:href="@{/auth/logout}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-red-600 hover:text-white transition-all duration-300 text-sm font-medium rounded-md">
+                    <i class="fas fa-sign-out-alt mr-3 w-4 text-center text-base"></i>
                     <span>Sair</span>
                 </a>
             </div>
         </nav>
         
         <!-- Main Content -->
-        <div class="main-content" th:classappend="${session.user == null} ? 'full-width'">
+        <div class="flex-1" th:classappend="${session.user != null} ? 'ml-70' : ''">
             <!-- Top Bar (only when not logged in) -->
-            <div class="top-bar" th:if="${session.user == null}">
-                <div class="logo-section">
-                    <img th:src="@{/images/caesarcoin-header.png}" alt="CaesarCoin logo" />
+            <div th:if="${session.user == null}" class="bg-white shadow-sm border-b p-4">
+                <div class="flex items-center">
+                    <img th:src="@{/images/caesarcoin-header.png}" alt="CaesarCoin logo" class="h-8" />
                 </div>
             </div>
             
             <!-- Page Content -->
-            <div class="content-area">
+            <div class="p-6">
                 <div th:replace="${contentFragment}">
-                    <div class="default-content">
-                        <h1>Bem-vindo ao CaesarCoin</h1>
-                        <p>Seu banco digital mais acessível.</p>
+                    <div class="text-center py-12">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-4">Bem-vindo ao CaesarCoin</h1>
+                        <p class="text-gray-600">Seu banco digital mais acessível.</p>
                     </div>
                 </div>
             </div>
