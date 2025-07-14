@@ -1,11 +1,8 @@
-<html xmlns:th="www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Correntistas Cadastrados', contentFragment=~{:: content})">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Cadastro de Correntistas</title>
-</head>
-
-<body>
+<div th:fragment="content">
     <h1>Correntistas Cadastrados</h1>
     <hr />
 
@@ -13,7 +10,6 @@
         <button class="btn btn-primary" type="submit">Novo</button>
     </form>
     <br />
-
 
     <div th:text="${message}" style="color: red"></div>
 
@@ -37,6 +33,6 @@
             </tr>
         </tbody>
     </table>
-</body>
+</div>
 
 </html>
