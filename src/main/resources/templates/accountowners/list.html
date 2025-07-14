@@ -3,36 +3,49 @@
       th:replace="layout/base :: html(pageTitle='CaesarCoin - Correntistas Cadastrados', contentFragment=~{:: content})">
 
 <div th:fragment="content">
-    <h1>Correntistas Cadastrados</h1>
-    <hr />
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Correntistas Cadastrados</h1>
+        
+        <div class="mb-4">
+            <form th:action="@{/accountowners/form}" method="GET">
+                <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition-colors" type="submit">
+                    Novo Correntista
+                </button>
+            </form>
+        </div>
 
-    <form th:action="@{/accountowners/form}" method="GET">
-        <button class="btn btn-primary" type="submit">Novo</button>
-    </form>
-    <br />
+        <div th:if="${message}" th:text="${message}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
 
-    <div th:text="${message}" style="color: red"></div>
-
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Admin</th>
-                <th>Senha</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="accountowner : ${accountowners}">
-                <td>[[${accountowner.id}]]</td>
-                <td><a th:href="@{/accountowners/{id}(id=${accountowner.id})}" th:text="${accountowner.name}"></a></td>
-                <td th:text="${accountowner.email}"></td>
-                <td th:text="${accountowner.admin}"></td>
-                <td th:text="${#strings.substring(accountowner.password,0,3)} + '...'"></td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Id</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Admin</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Senha</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="accountowner : ${accountowners}" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">[[${accountowner.id}]]</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a th:href="@{/accountowners/{id}(id=${accountowner.id})}" 
+                               class="text-orange-600 hover:text-orange-800 font-medium"
+                               th:text="${accountowner.name}"></a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${accountowner.email}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span th:if="${accountowner.admin}" class="bg-green-100 text-green-800 px-2 py-1 text-xs font-semibold rounded-full">Admin</span>
+                            <span th:unless="${accountowner.admin}" class="bg-gray-100 text-gray-800 px-2 py-1 text-xs font-semibold rounded-full">Usuário</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#strings.substring(accountowner.password,0,3)} + '...'"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 </html>
