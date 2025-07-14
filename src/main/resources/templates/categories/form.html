@@ -1,35 +1,32 @@
-<!doctype html>
-<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Cadastro de Categoria', contentFragment=~{:: content})">
 
-<head>
-    <title>CaesarCoin - Cadastro de Categoria</title>
-</head>
+<div th:fragment="content">
+    <h1 class="mb-3">Cadastro de Categoria</h1>
 
-<body>
-<h1 class="mb-3">Cadastro de Categoria</h1>
+    <form th:action="@{/categories}" method="POST" th:object="${category}">
+        <input type="hidden" th:field="*{id}" />
 
-<form th:action="@{/categories}" method="POST" th:object="${category}">
-    <input type="hidden" th:field="*{id}" />
+        <label for="category">Categoria</label>
+        <input type="text" th:field="*{name}" id="category" required /><br /><br />
+        <label for="Active">Ativo?</label>
+        <input type="checkbox" th:field="*{isActive}"><br><br>
+        <label for="Kind">Natureza</label>
+        <select th:field="*{kind}">
+            <option value="">Selecione a natureza</option>
+            <option value="ENTRADA">ENTRADA</option>
+            <option value="SAIDA">SAIDA</option>
+            <option value="INVESTIMENTO">INVESTIMENTO</option>
+        </select><br /><br />
+        <label for="ord">Ordem</label>
+        <input type="number" th:field="*{ord}" min="1"><br /><br />
 
-    <label for="category">Categoria</label>
-    <input type="text" th:field="*{name}" id="category" required /><br /><br />
-    <label for="Active">Ativo?</label>
-    <input type="checkbox" th:field="*{isActive}"><br><br>
-    <label for="Kind">Natureza</label>
-    <select th:field="*{kind}">
-        <option value="">Selecione a natureza</option>
-        <option value="ENTRADA">ENTRADA</option>
-        <option value="SAIDA">SAIDA</option>
-        <option value="INVESTIMENTO">INVESTIMENTO</option>
-    </select><br /><br />
-    <label for="ord">Ordem</label>
-    <input type="number" th:field="*{ord}" min="1"><br /><br />
+        <hr>
 
-    <hr>
-
-    <button type="submit">Salvar</button>
-    <a th:href="@{/categories}">Cancelar</a>
-</form>
-</body>
+        <button type="submit">Salvar</button>
+        <a th:href="@{/categories}">Cancelar</a>
+    </form>
+</div>
 
 </html>

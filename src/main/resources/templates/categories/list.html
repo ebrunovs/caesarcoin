@@ -1,41 +1,38 @@
-<!doctype>
-<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Categorias Cadastradas', contentFragment=~{:: content})">
 
-<head>
-  <title>CaesarCoin - Categorias Cadastradas</title>
-</head>
+<div th:fragment="content">
+    <h1>Categorias Cadastradas</h1>
+    <hr />
 
-<body>
-<h1>Categorias Cadastradas</h1>
-<hr />
+    <form th:action="@{/categories/form}" method="GET">
+        <button class="btn btn-primary" type="submit">Nova</button>
+    </form>
+    <br />
 
-<form th:action="@{/categories/form}" method="GET">
-  <button class="btn btn-primary" type="submit">Nova</button>
-</form>
-<br />
+    <div th:text="${message}" style="color: red"></div>
 
-<div th:text="${message}" style="color: red"></div>
-
-<table border="1">
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Nome</th>
-    <th>Ativo</th>
-    <th>Natureza</th>
-    <th style="text-align: center;">Ordem</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="category : ${categories}">
-    <td th:text="${category.id}"></td>
-    <td><a th:href="@{/categories/{id}(id=${category.id})}" th:text="${category.name}"></a></td>
-    <td th:text="${category.isActive ? 'Sim' : 'Não'}" style="text-align: center;"></td>
-    <td th:text="${category.kind}" style="text-align: center;"></td>
-    <td th:text="${category.ord}" style="text-align: center;"></td>
-  </tr>
-  </tbody>
-</table>
-</body>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Ativo</th>
+            <th>Natureza</th>
+            <th style="text-align: center;">Ordem</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="category : ${categories}">
+            <td th:text="${category.id}"></td>
+            <td><a th:href="@{/categories/{id}(id=${category.id})}" th:text="${category.name}"></a></td>
+            <td th:text="${category.isActive ? 'Sim' : 'Não'}" style="text-align: center;"></td>
+            <td th:text="${category.kind}" style="text-align: center;"></td>
+            <td th:text="${category.ord}" style="text-align: center;"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 
 </html>
