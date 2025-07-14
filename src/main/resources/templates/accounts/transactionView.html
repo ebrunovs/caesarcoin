@@ -1,94 +1,89 @@
-<!doctype html>
-<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Visualizar Transação', contentFragment=~{:: content})">
 
-<head>
-  <title>CaesarCoin - Visualizar Transação</title>
-</head>
+<div th:fragment="content">
+    <h1>Detalhes da Transação</h1>
 
-<body>
+    <div th:text="${message}" style="color: green; margin-bottom: 20px;"></div>
 
-<h1>Detalhes da Transação</h1>
-
-<div th:text="${message}" style="color: green; margin-bottom: 20px;"></div>
-
-<div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
-  <h3>Informações da Transação</h3>
-  <ul>
-    <li><strong>Descrição:</strong> <span th:text="${transaction.description}"></span></li>
-    <li><strong>Data:</strong> <span th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}"></span></li>
-    <li><strong>Valor:</strong> <span th:text="${#numbers.formatCurrency(transaction.value)}"></span></li>
-    <li><strong>Tipo:</strong> <span th:text="${transaction.type}"></span></li>
-    <li><strong>Categoria:</strong> <span th:text="${transaction.category.name}"></span></li>
-    <li><strong>Conta:</strong> <span th:text="${transaction.account.number}"></span></li>
-  </ul>
-</div>
-
-<div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
-  <h3>Comentários</h3>
-  
-  <div th:if="${transaction.comments.isEmpty()}">
-    <p>Nenhum comentário ainda.</p>
-  </div>
-  
-  <div th:each="comment : ${transaction.comments}" style="border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 10px;">
-    
-    <!-- Modo Visualização -->
-    <div th:if="${param.editComment == null or param.editComment[0] != comment.id.toString()}">
-      <div style="display: flex; justify-content: space-between; align-items: start;">
-        <div style="flex: 1;">
-          <p><strong>Data:</strong> <span th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
-          <p th:text="${comment.text}" style="margin: 10px 0;"></p>
-        </div>
-        <div style="margin-left: 15px;">
-          <a th:href="@{/transactions/view/{id}(id=${transaction.id}, editComment=${comment.id})}" class="btn btn-primary">
-            Editar
-          </a>
-          <form th:action="@{/comments/delete/{id}(id=${comment.id})}" method="POST" style="display: inline;">
-            <button type="submit" class="btn btn-danger"
-                    onclick="return confirm('Tem certeza que deseja excluir este comentário?')">
-              Excluir
-            </button>
-          </form>
-        </div>
-      </div>
+    <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
+        <h3>Informações da Transação</h3>
+        <ul>
+            <li><strong>Descrição:</strong> <span th:text="${transaction.description}"></span></li>
+            <li><strong>Data:</strong> <span th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}"></span></li>
+            <li><strong>Valor:</strong> <span th:text="${#numbers.formatCurrency(transaction.value)}"></span></li>
+            <li><strong>Tipo:</strong> <span th:text="${transaction.type}"></span></li>
+            <li><strong>Categoria:</strong> <span th:text="${transaction.category.name}"></span></li>
+            <li><strong>Conta:</strong> <span th:text="${transaction.account.number}"></span></li>
+        </ul>
     </div>
 
-    <!-- Modo Edição -->
-    <div th:if="${param.editComment != null and param.editComment[0] == comment.id.toString()}">
-      <p><strong>Data:</strong> <span th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
-      <form th:action="@{/comments/update}" method="POST" style="margin-bottom: 10px;">
-        <input type="hidden" name="id" th:value="${comment.id}" />
-        <input type="hidden" name="transaction.id" th:value="${comment.transaction.id}" />
-        <textarea name="text" class="comment-textarea" th:text="${comment.text}" required></textarea>
-        <div style="margin-top: 10px;">
-          <button type="submit" class="btn btn-success">
-            Salvar
-          </button>
-          <a th:href="@{/transactions/view/{id}(id=${transaction.id})}" class="btn btn-secondary">
-            Cancelar
-          </a>
+    <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
+        <h3>Comentários</h3>
+        
+        <div th:if="${transaction.comments.isEmpty()}">
+            <p>Nenhum comentário ainda.</p>
         </div>
-      </form>
+        
+        <div th:each="comment : ${transaction.comments}" style="border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 10px;">
+            
+            <!-- Modo Visualização -->
+            <div th:if="${param.editComment == null or param.editComment[0] != comment.id.toString()}">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <p><strong>Data:</strong> <span th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                        <p th:text="${comment.text}" style="margin: 10px 0;"></p>
+                    </div>
+                    <div style="margin-left: 15px;">
+                        <a th:href="@{/transactions/view/{id}(id=${transaction.id}, editComment=${comment.id})}" class="btn btn-primary">
+                            Editar
+                        </a>
+                        <form th:action="@{/comments/delete/{id}(id=${comment.id})}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('Tem certeza que deseja excluir este comentário?')">
+                                Excluir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modo Edição -->
+            <div th:if="${param.editComment != null and param.editComment[0] == comment.id.toString()}">
+                <p><strong>Data:</strong> <span th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                <form th:action="@{/comments/update}" method="POST" style="margin-bottom: 10px;">
+                    <input type="hidden" name="id" th:value="${comment.id}" />
+                    <input type="hidden" name="transaction.id" th:value="${comment.transaction.id}" />
+                    <textarea name="text" class="comment-textarea" th:text="${comment.text}" required></textarea>
+                    <div style="margin-top: 10px;">
+                        <button type="submit" class="btn btn-success">
+                            Salvar
+                        </button>
+                        <a th:href="@{/transactions/view/{id}(id=${transaction.id})}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
-  <h3>Adicionar Comentário</h3>
-  <form th:action="@{/transactions/comment}" method="POST" th:object="${comment}">
-    <input type="hidden" name="transactionId" th:value="${transaction.id}" />
-    
-    <label for="text">Comentário:</label><br>
-    <textarea th:field="*{text}" rows="4" cols="50" placeholder="Digite seu comentário aqui..." required></textarea><br><br>
-    
-    <button type="submit" class="btn btn-primary">Adicionar Comentário</button>
-  </form>
-</div>
+    <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
+        <h3>Adicionar Comentário</h3>
+        <form th:action="@{/transactions/comment}" method="POST" th:object="${comment}">
+            <input type="hidden" name="transactionId" th:value="${transaction.id}" />
+            
+            <label for="text">Comentário:</label><br>
+            <textarea th:field="*{text}" rows="4" cols="50" placeholder="Digite seu comentário aqui..." required></textarea><br><br>
+            
+            <button type="submit" class="btn btn-primary">Adicionar Comentário</button>
+        </form>
+    </div>
 
-<div>
-  <a th:href="@{/accounts/{id}/transactions(id=${transaction.account.id})}">Voltar para lista de transações</a>
+    <div>
+        <a th:href="@{/accounts/{id}/transactions(id=${transaction.account.id})}">Voltar para lista de transações</a>
+    </div>
 </div>
-
-</body>
 
 </html>

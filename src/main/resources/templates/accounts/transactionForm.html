@@ -1,110 +1,105 @@
-<!doctype html>
-<html lang="pt_BR" xmlns:th="www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Cadastro de Transações', contentFragment=~{:: content})">
 
-<head>
-  <title>Caesarcoin - Cadastro de Transações</title>
-</head>
+<div th:fragment="content">
+    <h1>Cadastro de Transações</h1>
 
-<body>
+    <div th:text="${mensagem}" style="color: red"></div>
 
-<h1>Cadastro de Transações</h1>
+    <div th:if="${account == null}">
+        <form th:action="transaction" method="POST">
+            <label for="nuAccount">Número da conta</label>
+            <select id="nuAccount" name="nuAccount" required>
+                <option value="">-- Selecione uma conta --</option>
+                <option th:each="acc : ${userAccounts}" 
+                        th:value="${acc.number}" 
+                        th:text="'Conta: ' + ${acc.number} + ' - ' + ${acc.description}">
+                </option>
+            </select>
+            <button type="submit">Próximo</button>
+        </form>
+    </div>
 
-<div th:text="${mensagem}" style="color: red"></div>
+    <div th:if="${account != null}">
+        <ul>
+            <li>Número da Conta:
+                <span th:text="${account.number}"></span>
+            </li>
+            <li>Tipo:
+                <span th:text="${account.type}"></span>
+            </li>
+            <li>Data Fechamento:
+                <span th:text="${account.dueDate}"></span>
+            </li>
+        </ul>
 
-<div th:if="${account == null}">
-  <form th:action="transaction" method="POST">
-    <label for="nuAccount">Número da conta</label>
-    <select id="nuAccount" name="nuAccount" required>
-      <option value="">-- Selecione uma conta --</option>
-      <option th:each="acc : ${userAccounts}" 
-              th:value="${acc.number}" 
-              th:text="'Conta: ' + ${acc.number} + ' - ' + ${acc.description}">
-      </option>
-    </select>
-    <button type="submit">Próximo</button>
-  </form>
-</div>
+        <div style="margin-bottom: 30px;"></div>
 
-<div th:if="${account != null}">
-  <ul>
-    <li>Número da Conta:
-      <span th:text="${account.number}"></span>
-    </li>
-    <li>Tipo:
-      <span th:text="${account.type}"></span>
-    </li>
-    <li>Data Fechamento:
-      <span th:text="${account.dueDate}"></span>
-    </li>
-  </ul>
+        <h4>Informações da transação</h4>
+        <hr>
+        <form th:action="@{/accounts/transaction}" method="POST" th:object="${transaction}">
+            <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:value="${account.number}" id="nuAccount" name="nuAccount" />
+            <label for="description">Descrição</label>
+            <input type="text" th:field="*{description}" id="description" /> <br />
+            <label for="value">Valor</label>
+            <input type="text" th:field="*{value}" id="value" /><br />
+            <label for="type">Tipo</label>
+            <select th:field="*{type}" id="type" onchange="updateCategories()">
+                <option value="">Selecione o tipo</option>
+                <option value="ENTRADA">ENTRADA</option>
+                <option value="SAIDA">SAIDA</option>
+                <option value="INVESTIMENTO">INVESTIMENTO</option>
+            </select> <br />
 
-  <div style="margin-bottom: 30px;"></div>
+            <label for="date">Data</label>
+            <input type="date" th:field="*{date}" id="date" /> <br />
+            <label for="category">Categoria</label>
+            <select th:field="*{category.id}" id="nameCateg">
+                <option value="">Selecione uma categoria</option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.id}"
+                        th:text="${cat.name}"
+                        th:data-type="${cat.kind}">
+                </option>
+            </select>
+            <br /><br />
 
-  <h4>Informações da transação</h4>
-  <hr>
-  <form th:action="@{/accounts/transaction}" method="POST" th:object="${transaction}">
-    <input type="hidden" th:field="*{id}" />
-    <input type="hidden" th:value="${account.number}" id="nuAccount" name="nuAccount" />
-    <label for="description">Descrição</label>
-    <input type="text" th:field="*{description}" id="description" /> <br />
-    <label for="value">Valor</label>
-    <input type="text" th:field="*{value}" id="value" /><br />
-    <label for="type">Tipo</label>
-    <select th:field="*{type}" id="type" onchange="updateCategories()">
-      <option value="">Selecione o tipo</option>
-      <option value="ENTRADA">ENTRADA</option>
-      <option value="SAIDA">SAIDA</option>
-      <option value="INVESTIMENTO">INVESTIMENTO</option>
-    </select> <br />
+            <button type="submit">Cadastrar transação</button>
+        </form>
+    </div>
 
-    <label for="date">Data</label>
-    <input type="date" th:field="*{date}" id="date" /> <br />
-    <label for="category">Categoria</label>
-    <select th:field="*{category.id}" id="nameCateg">
-      <option value="">Selecione uma categoria</option>
-      <option th:each="cat : ${categories}"
-              th:value="${cat.id}"
-              th:text="${cat.name}"
-              th:data-type="${cat.kind}">
-      </option>
-    </select>
-    <br /><br />
-
-    <button type="submit">Cadastrar transação</button>
-  </form>
-</div>
-
-<script>
-function updateCategories() {
-    const typeSelect = document.getElementById('type');
-    const categorySelect = document.getElementById('nameCateg');
-    const selectedType = typeSelect.value;
-    
-    // Limpar a seleção atual
-    categorySelect.value = '';
-    
-    // Mostrar/ocultar opções baseado no tipo selecionado
-    const options = categorySelect.querySelectorAll('option');
-    options.forEach(option => {
-        if (option.value === '') {
-            option.style.display = 'block'; // Sempre mostrar a opção padrão
-        } else {
-            const categoryType = option.getAttribute('data-type');
-            if (selectedType === '' || categoryType === selectedType) {
-                option.style.display = 'block';
+    <script>
+    function updateCategories() {
+        const typeSelect = document.getElementById('type');
+        const categorySelect = document.getElementById('nameCateg');
+        const selectedType = typeSelect.value;
+        
+        // Limpar a seleção atual
+        categorySelect.value = '';
+        
+        // Mostrar/ocultar opções baseado no tipo selecionado
+        const options = categorySelect.querySelectorAll('option');
+        options.forEach(option => {
+            if (option.value === '') {
+                option.style.display = 'block'; // Sempre mostrar a opção padrão
             } else {
-                option.style.display = 'none';
+                const categoryType = option.getAttribute('data-type');
+                if (selectedType === '' || categoryType === selectedType) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
             }
-        }
+        });
+    }
+
+    // Inicializar o filtro quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCategories();
     });
-}
-
-// Inicializar o filtro quando a página carregar
-document.addEventListener('DOMContentLoaded', function() {
-    updateCategories();
-});
-</script>
-
-</body>
+    </script>
+</div>
 
 </html>
