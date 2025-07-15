@@ -1,11 +1,17 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
+import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
+import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
+import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.Category;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,32 +36,76 @@ public class CategoryController {
             "Aporte Renda Fixa", "Aporte Renda Variável", "Aporte Reserva Emergencia", "Aporte Previdência"
     };
 
-
-
     @GetMapping("/form")
     public ModelAndView getForm(ModelAndView model) {
-        model.addObject("menu", "category");
-        model.setViewName("categories/form");
-        model.addObject("category", new Category());
+        try {
+            model.addObject("menu", "category");
+            model.setViewName("categories/form");
+            model.addObject("category", new Category());
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao carregar formulário de categoria", e);
+        }
         return model;
     }
-
 
     @PostMapping
     public ModelAndView save(Category cat, ModelAndView model, RedirectAttributes attr){
-        catService.save(cat);
-        attr.addFlashAttribute("message", "Categoria inserida com sucesso!");
-        model.setViewName("redirect:categories");
+        try {
+            if (cat.getName() == null || cat.getName().trim().isEmpty()) {
+                throw new InvalidDataException("Nome da categoria é obrigatório");
+            }
+            if (cat.getKind() == null) {
+                throw new InvalidDataException("Tipo da categoria é obrigatório");
+            }
+            if (cat.getOrd() == null || cat.getOrd() < 1) {
+                throw new InvalidDataException("Ordem deve ser um número positivo");
+            }
+            
+            catService.save(cat);
+            attr.addFlashAttribute("message", "Categoria inserida com sucesso!");
+            model.setViewName("redirect:categories");
+        } catch (Exception e) {
+            if (e instanceof InvalidDataException) {
+                throw e;
+            }
+            throw new BusinessException("Erro ao salvar categoria", e);
+        }
         return model;
     }
 
-
-
     @GetMapping
     public ModelAndView listAll(ModelAndView model){
-        model.addObject("menu", "category");
-        model.addObject("categories", catService.findAll());
-        model.setViewName("categories/list");
+        try {
+            model.addObject("menu", "category");
+            model.addObject("categories", catService.findAll());
+            model.setViewName("categories/list");
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao listar categorias", e);
+        }
+        return model;
+    }
+    
+    @GetMapping("/{id}")
+    public ModelAndView getCategoryById(@PathVariable(value = "id") Integer id, ModelAndView model) {
+        try {
+            if (id == null || id <= 0) {
+                throw new InvalidDataException("ID inválido");
+            }
+            
+            Category category = catService.findById(id);
+            if (category == null) {
+                throw new ResourceNotFoundException("Categoria não encontrada com ID: " + id);
+            }
+            
+            model.addObject("menu", "category");
+            model.setViewName("categories/form");
+            model.addObject("category", category);
+        } catch (Exception e) {
+            if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new BusinessException("Erro ao buscar categoria", e);
+        }
         return model;
     }
 
@@ -64,8 +114,37 @@ public class CategoryController {
         return Arrays.asList(nameCategories);
     }
 
+    // Tratamentos de exceção locais
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
+        System.out.println("Registrando o erro no log");
+        ModelAndView model = new ModelAndView("/error");
+        model.addObject("message", ex.getMessage());
+        model.addObject("exception", ex);
+        model.addObject("path", req.getRequestURI());
+        model.addObject("trace", ex.getStackTrace());
+        return model;
+    }
 
+    @ExceptionHandler(InvalidDataException.class)
+    public ModelAndView handleInvalidDataException(InvalidDataException ex, HttpServletRequest req) {
+        System.out.println("Registrando o erro no log");
+        ModelAndView model = new ModelAndView("/error");
+        model.addObject("message", ex.getMessage());
+        model.addObject("exception", ex);
+        model.addObject("path", req.getRequestURI());
+        model.addObject("trace", ex.getStackTrace());
+        return model;
+    }
 
-
-
+    @ExceptionHandler(BusinessException.class)
+    public ModelAndView handleBusinessException(BusinessException ex, HttpServletRequest req) {
+        System.out.println("Registrando o erro no log");
+        ModelAndView model = new ModelAndView("/error");
+        model.addObject("message", ex.getMessage());
+        model.addObject("exception", ex);
+        model.addObject("path", req.getRequestURI());
+        model.addObject("trace", ex.getStackTrace());
+        return model;
+    }
 }
