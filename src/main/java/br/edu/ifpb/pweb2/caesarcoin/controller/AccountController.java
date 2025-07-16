@@ -71,8 +71,8 @@ public class AccountController {
         return model;
     }
 
-    @PostMapping(value = "/transaction")
-    public ModelAndView postTransaction(String nuAccount, Transaction transaction, ModelAndView mav, RedirectAttributes attr) {
+    @PostMapping("/transaction")
+    public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, Transaction transaction, ModelAndView mav, RedirectAttributes attr) {
         try {
             if (transaction.getId() != null) {
                 Transaction existing = transactionService.findById(transaction.getId());
@@ -91,8 +91,8 @@ public class AccountController {
                 return mav;
             }
 
-            if (nuAccount != null && transaction.getValue() == null) {
-                Account account = accService.findByNumberWithTransactions(nuAccount);
+            if (idAccount != null && transaction.getValue() == null) {
+                Account account = accService.findByIdWithTransactions(idAccount);
                 if (account != null) {
                     transaction.setCategory(new Category());
                     mav.addObject("menu", "transaction");
@@ -103,8 +103,8 @@ public class AccountController {
                     throw new ResourceNotFoundException("Conta inexistente!");
                 }
             } else {
-                if (nuAccount == null || nuAccount.trim().isEmpty()) {
-                    throw new InvalidDataException("Número da conta é obrigatório");
+                if (idAccount == null || idAccount <= 0) {
+                    throw new InvalidDataException("ID da conta é obrigatório");
                 }
                 if (transaction.getValue() == null || transaction.getValue().doubleValue() <= 0) {
                     throw new InvalidDataException("Valor deve ser maior que zero");
@@ -116,9 +116,9 @@ public class AccountController {
                     throw new InvalidDataException("Categoria é obrigatória");
                 }
                 
-                Account account = accService.findByNumberWithTransactions(nuAccount);
+                Account account = accService.findByIdWithTransactions(idAccount);
                 if (account == null) {
-                    throw new ResourceNotFoundException("Conta não encontrada: " + nuAccount);
+                    throw new ResourceNotFoundException("Conta não encontrada: " + idAccount);
                 }
                 
                 Integer categoryId = transaction.getCategory().getId();
@@ -141,6 +141,8 @@ public class AccountController {
         }
         return mav;
     }
+
+
 
     @GetMapping(value = "/{id}/transactions")
     public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount, ModelAndView mav) {
@@ -270,6 +272,18 @@ public class AccountController {
             throw new BusinessException("Erro ao buscar conta", e);
         }
         return model;
+    }
+
+    @GetMapping("/transaction")
+    public ModelAndView showTransactionForm(@RequestParam("idAccount") Integer idAccount, ModelAndView mav) {
+        Account account = accService.findById(idAccount);
+        if (account == null) {
+            throw new ResourceNotFoundException("Conta não encontrada com ID: " + idAccount);
+        }
+        mav.addObject("account", account);
+        mav.addObject("transaction", new Transaction());
+        mav.setViewName("accounts/transactionForm");
+        return mav;
     }
 
     // Tratamentos de exceção locais

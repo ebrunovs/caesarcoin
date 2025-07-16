@@ -26,6 +26,16 @@
 
         <div th:if="${message}" th:text="${message}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6"></div>
 
+
+        <div class="mb-4">
+            <a th:href="@{/accounts/transaction(idAccount=${account.id})}">
+                <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition-colors" type="submit">
+                    Nova Transação
+                </button>
+            </a>
+            </form>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <thead class="bg-gray-50">
