@@ -96,7 +96,6 @@ public class AccountController {
                 Account account = accService.findByIdWithTransactions(idAccount);
                 if (account != null) {
                     transaction.setCategory(new Category());
-                    mav.addObject("menu", "transaction");
                     mav.addObject("account", account);
                     mav.addObject("transaction", transaction);
                     mav.setViewName("accounts/transactionForm");

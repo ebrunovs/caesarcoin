@@ -24,6 +24,8 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Dia Fechamento</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Editar</th>
+
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -40,6 +42,8 @@
                             <span class="bg-blue-100 text-blue-800 px-2 py-1 text-xs font-semibold rounded-full" 
                                   th:text="${account.type}"></span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">  <a th:href="@{accounts/{id}(id=${account.id})}" 
+                               class="text-blue-600 hover:text-blue-800 font-medium">Editar</a></td>
                     </tr>
                 </tbody>
             </table>

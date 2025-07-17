@@ -25,6 +25,7 @@
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ativo</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Natureza</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ordem</th>
+                        <th  class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Edição</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -42,11 +43,39 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center" th:text="${category.kind}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center" th:text="${category.ord}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">  <a th:href="@{categories/{id}(id=${category.id})}" 
+                               class="text-blue-600 hover:text-blue-800 font-medium">Editar</a></td>
+
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
+
+    <form th:action="@{/categories}" th:object="${category}" method="post">
+        <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-700">Nome</label>
+            <input type="text" id="name" th:field="*{name}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+        </div>
+
+        <div class="mb-4">
+            <label for="ord" class="block text-sm font-medium text-gray-700">Ordem</label>
+            <input type="number" id="ord" th:field="*{ord}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+        </div>
+
+        <div class="mb-4">
+            <label for="kind" class="block text-sm font-medium text-gray-700">Natureza</label>
+            <select id="kind" th:field="*{kind}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                <option value="">Selecione</option>
+                <option value="ENTRADA">Entrada</option>
+                <option value="SAIDA">Saída</option>
+            </select>
+        </div>
+
+        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors">
+            Salvar
+        </button>
+    </form>
 </div>
 
 </html>
