@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -116,35 +116,37 @@ public class CategoryController {
 
     // Tratamentos de exceção locais
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
-        System.out.println("Registrando o erro no log");
+    public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {
+        resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND);
         ModelAndView model = new ModelAndView("/error");
         model.addObject("message", ex.getMessage());
         model.addObject("exception", ex);
         model.addObject("path", req.getRequestURI());
-        model.addObject("trace", ex.getStackTrace());
+        model.addObject("status", resp.getStatus());
         return model;
     }
 
     @ExceptionHandler(InvalidDataException.class)
-    public ModelAndView handleInvalidDataException(InvalidDataException ex, HttpServletRequest req) {
-        System.out.println("Registrando o erro no log");
+    public ModelAndView handleInvalidDataException(InvalidDataException ex, HttpServletRequest req,jakarta.servlet.http.HttpServletResponse resp) {       
+        resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST);
         ModelAndView model = new ModelAndView("/error");
         model.addObject("message", ex.getMessage());
         model.addObject("exception", ex);
         model.addObject("path", req.getRequestURI());
-        model.addObject("trace", ex.getStackTrace());
+        model.addObject("status", resp.getStatus());
         return model;
     }
 
-    @ExceptionHandler(BusinessException.class)
-    public ModelAndView handleBusinessException(BusinessException ex, HttpServletRequest req) {
-        System.out.println("Registrando o erro no log");
+
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ModelAndView handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {
+        resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         ModelAndView model = new ModelAndView("/error");
         model.addObject("message", ex.getMessage());
         model.addObject("exception", ex);
         model.addObject("path", req.getRequestURI());
-        model.addObject("trace", ex.getStackTrace());
+        model.addObject("status", resp.getStatus());
         return model;
     }
 }

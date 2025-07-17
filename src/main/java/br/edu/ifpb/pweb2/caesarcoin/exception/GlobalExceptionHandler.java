@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,16 +22,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
-        System.out.println("Registrando o erro no log");
+    public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req, HttpServletResponse resp) {
+        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         ModelAndView model = new ModelAndView("/error");
         model.addObject("message", ex.getMessage());
-        model.addObject("exception", ex);
+        model.addObject("exception", ex.getClass().getSimpleName());
         model.addObject("path", req.getRequestURI());
-        model.addObject("trace", ex.getStackTrace());
+        model.addObject("status", resp.getStatus());
         return model;
     }
-@ExceptionHandler(BusinessException.class)
+
+    @ExceptionHandler(BusinessException.class)
     public ModelAndView handleBusinessException(BusinessException ex, HttpServletRequest req) {
         System.out.println("Registrando o erro no log");
         ModelAndView model = new ModelAndView("/error");

@@ -24,7 +24,6 @@ public class HomeController {
     // Tratamento de exceção local
     @ExceptionHandler(BusinessException.class)
     public ModelAndView handleBusinessException(BusinessException ex, HttpServletRequest req) {
-        System.out.println("Registrando o erro no log");
         ModelAndView model = new ModelAndView("/error");
         model.addObject("message", ex.getMessage());
         model.addObject("exception", ex);
