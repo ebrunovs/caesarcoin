@@ -28,6 +28,10 @@ public class AccountService implements Service<Account, Integer> {
         return accRepo.findById(id).orElse(null);
     }
 
+    public void deleteById(Integer id) {
+          accRepo.deleteById(id);
+    }
+
     @Override
     public Account save(Account conta) {
         AccountOwner correntista = accOwnerService.findById(conta.getAccountOwner().getId());

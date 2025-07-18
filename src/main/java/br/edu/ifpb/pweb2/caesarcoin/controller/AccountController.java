@@ -286,6 +286,29 @@ public class AccountController {
         return mav;
     }
 
+
+    @DeleteMapping("/{id}/delete")
+    public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
+        ModelAndView mav, RedirectAttributes attr) {
+        accService.deleteById(id);
+        attr.addFlashAttribute("mensagem", "Conta removida com sucesso!");
+        mav.setViewName("redirect:/accounts");
+        return mav;
+    }
+
+    @GetMapping("/transaction/{id}/delete")
+    public ModelAndView deleteTransactionById(@PathVariable(value = "id") Integer id,
+        ModelAndView mav, RedirectAttributes attr) {
+        Transaction transaction = transactionService.findById(id);
+        transactionService.deleteById(id);
+        attr.addFlashAttribute("message", "Transação removida com sucesso!");
+        String redirect = "redirect:/accounts/ " + transaction.getAccount().getId() + " /transactions";
+        mav.setViewName(redirect);
+        return mav;
+    }
+
+
+
     // Tratamentos de exceção locais
     @ExceptionHandler(ResourceNotFoundException.class)
     public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {

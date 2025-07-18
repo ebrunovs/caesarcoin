@@ -19,6 +19,10 @@ public class CategoryService implements Service<Category, Integer> {
         return catRepo.findAll();
     }
 
+    public void deleteById(Integer id) {
+        catRepo.deleteById(id);
+    }
+
     @Override
     public Category findById(Integer integer) {
         return catRepo.findById(integer).orElse(null);

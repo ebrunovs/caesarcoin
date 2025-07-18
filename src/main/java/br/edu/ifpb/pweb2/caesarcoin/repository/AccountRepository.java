@@ -13,7 +13,9 @@ import org.springframework.stereotype.Repository;
 public interface AccountRepository extends JpaRepository<Account,Integer> {
 
     List<Account> findByAccountOwner(AccountOwner accountOwner);
-
+    
+    void deleteById(Integer id);
+ 
     @Query("from Account c left join fetch c.transactions t where c.number = :number")
      Account findByNumberWithTransactions(@Param("number") String number);
 

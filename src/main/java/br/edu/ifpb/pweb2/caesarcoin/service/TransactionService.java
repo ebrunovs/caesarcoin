@@ -19,6 +19,10 @@ public class TransactionService implements Service<Transaction, Integer> {
         return transactionRepository.findAll();
     }
 
+    public void deleteById(Integer id) {
+        transactionRepository.deleteById(id);
+    }
+
     @Override
     public Transaction findById(Integer id) {
         return transactionRepository.findById(id).orElse(null);

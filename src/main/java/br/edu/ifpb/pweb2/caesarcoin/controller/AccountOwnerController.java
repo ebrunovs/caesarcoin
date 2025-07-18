@@ -94,6 +94,15 @@ public class AccountOwnerController {
         return model;
     }
 
+    @GetMapping("/{id}/delete")
+    public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
+        ModelAndView mav, RedirectAttributes attr) {
+        accOwnerService.deleteById(id);
+        attr.addFlashAttribute("message", "Correntista removido com sucesso!");
+        mav.setViewName("redirect:/accountowners");
+        return mav;
+    }
+
     // Tratamentos de exceção locais
     @ExceptionHandler(ResourceNotFoundException.class)
     public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {

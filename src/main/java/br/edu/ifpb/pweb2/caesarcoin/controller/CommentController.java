@@ -113,7 +113,6 @@ public class CommentController {
     }
 
 
-
     @ExceptionHandler(NoResourceFoundException.class)
     public ModelAndView handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {
         resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

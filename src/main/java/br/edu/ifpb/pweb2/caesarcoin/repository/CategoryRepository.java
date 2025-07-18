@@ -11,4 +11,5 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     List<Category> findByKindAndIsActive(TransactionType kind, Boolean isActive);
     List<Category> findByKind(TransactionType kind);
     List<Category> findByKindAndIsActiveOrderByOrd(TransactionType kind, Boolean isActive);
+    void deleteById(Integer id);
 }

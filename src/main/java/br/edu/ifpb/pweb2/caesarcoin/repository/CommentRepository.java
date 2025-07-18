@@ -11,4 +11,5 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     List<Comment> findByTransaction(Transaction transaction);
     List<Comment> findByTransactionOrderByCreatedAtDesc(Transaction transaction);
+    void deleteById(Integer id);
 }

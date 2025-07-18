@@ -24,6 +24,9 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
     public AccountOwner findById(Integer id) {
         return accOwnerRepo.findById(id).orElse(null);
     }
+    public void deleteById(Integer id) {
+        accOwnerRepo.deleteById(id);
+    }
 
     @Override
     public AccountOwner save(AccountOwner accOwner) {
