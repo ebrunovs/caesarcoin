@@ -64,6 +64,8 @@
                                class="text-orange-600 hover:text-orange-800 font-medium mr-3">Visualizar</a>
                             <a th:href="@{/accounts/edit/{id}(id=${transaction.id})}" 
                                class="text-blue-600 hover:text-blue-800 font-medium">Editar</a>
+                              <a th:href="@{/accounts/transaction/{id}/delete(id=${transaction.id})}" 
+                               class="text-blue-600 hover:text-blue-800 font-medium">Remover</a>
                         </td>
                     </tr>
                 </tbody>

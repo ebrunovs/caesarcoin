@@ -44,8 +44,10 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center" th:text="${category.kind}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center" th:text="${category.ord}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">  <a th:href="@{categories/{id}(id=${category.id})}" 
-                               class="text-blue-600 hover:text-blue-800 font-medium">Editar</a></td>
-
+                               class="text-blue-600 hover:text-blue-800 font-medium">Editar</a>
+                            <a th:href="@{categories/{id}/delete(id=${category.id})}" 
+                               class="text-blue-600 hover:text-blue-800 font-medium">Remover</a>
+                            </td>
                     </tr>
                 </tbody>
             </table>
