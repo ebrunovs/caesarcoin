@@ -287,11 +287,11 @@ public class AccountController {
     }
 
 
-    @DeleteMapping("/{id}/delete")
+    @GetMapping("/{id}/delete")
     public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
         accService.deleteById(id);
-        attr.addFlashAttribute("mensagem", "Conta removida com sucesso!");
+        attr.addFlashAttribute("message", "Conta removida com sucesso!");
         mav.setViewName("redirect:/accounts");
         return mav;
     }
