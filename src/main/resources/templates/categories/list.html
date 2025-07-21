@@ -52,26 +52,28 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span th:if="${category.kind == 'RECEITA'}" 
-                                  class="bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
-                                <i class="fas fa-arrow-up"></i>
-                                RECEITA
-                            </span>
-                            <span th:if="${category.kind == 'DESPESA'}" 
-                                  class="bg-rose-100 text-rose-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
-                                <i class="fas fa-arrow-down"></i>
-                                DESPESA
-                            </span>
-                            <span th:if="${category.kind == 'INVESTIMENTO'}" 
-                                  class="bg-blue-100 text-blue-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
-                                <i class="fas fa-chart-line"></i>
-                                INVESTIMENTO
-                            </span>
-                            <span th:unless="${category.kind == 'RECEITA' or category.kind == 'DESPESA' or category.kind == 'INVESTIMENTO'}" 
-                                  class="bg-gray-100 text-gray-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
-                                <i class="fas fa-question"></i>
-                                [[${category.kind}]]
-                            </span>
+                            <div th:switch="${#strings.trim(#strings.toUpperCase(category.kind))}">
+                                <span th:case="'ENTRADA'" 
+                                      class="bg-green-100 text-green-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
+                                    <i class="fas fa-arrow-up"></i>
+                                    ENTRADA
+                                </span>
+                                <span th:case="'SAIDA'" 
+                                      class="bg-red-100 text-red-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
+                                    <i class="fas fa-arrow-down"></i>
+                                    SAÍDA
+                                </span>
+                                <span th:case="'INVESTIMENTO'" 
+                                      class="bg-blue-100 text-blue-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
+                                    <i class="fas fa-chart-line"></i>
+                                    INVESTIMENTO
+                                </span>
+                                <span th:case="*" 
+                                      class="bg-gray-100 text-gray-800 px-3 py-1 text-xs font-semibold rounded-full flex items-center justify-center gap-1 w-fit mx-auto">
+                                    <i class="fas fa-question"></i>
+                                    [[${category.kind}]]
+                                </span>
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <span class="bg-gray-100 text-gray-800 px-2 py-1 text-xs font-medium rounded-md flex items-center justify-center gap-1 w-fit mx-auto">
@@ -89,7 +91,7 @@
                                 <a th:href="@{/categories/{id}/delete(id=${category.id})}" 
                                    title="Remover"
                                    class="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-50 transition-colors"
-                                   >
+                                   onclick="return confirm('Tem certeza que deseja remover esta categoria?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </div>
