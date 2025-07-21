@@ -34,8 +34,8 @@
                 
                 <div id="dateField" class="hidden">
                     <label for="data" class="block text-sm font-medium text-gray-700 mb-2">Data de Vencimento</label>
-                    <input type="date" th:field="*{dueDate}" 
-                          required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                    <input type="date" th:field="*{dueDate}" id="dueDateInput"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
                 </div>
                 
                 <div>
@@ -64,11 +64,15 @@
         function toggleDateField() {
             const typeSelect = document.getElementById('typeSelect');
             const dateField = document.getElementById('dateField');
+            const dueDateInput = document.getElementById('dueDateInput');
             
             if (typeSelect.value === 'CARTAO') {
                 dateField.classList.remove('hidden');
+                dueDateInput.setAttribute('required', 'required');
             } else {
                 dateField.classList.add('hidden');
+                dueDateInput.removeAttribute('required');
+                dueDateInput.value = ''; // Limpa o valor quando oculto
             }
         }
         
