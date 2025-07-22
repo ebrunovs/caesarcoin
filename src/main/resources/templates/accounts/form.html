@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Cadastro de Conta', contentFragment=~{:: content})">
+
+<div th:fragment="content">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Cadastro de conta</h1>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form th:action="@{/accounts}" method="POST" th:object="${account}" class="space-y-6">
+                <input type="hidden" th:field="*{id}" />
+
+                <div>
+                    <label for="account" class="block text-sm font-medium text-gray-700 mb-2">Número</label>
+                    <input type="text" th:field="*{number}" 
+                         required  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                </div>
+
+                <div>
+                    <label for="accountowner" class="block text-sm font-medium text-gray-700 mb-2">Correntista</label>
+                    <input type="text" th:value="${account.accountOwner.name}" readonly 
+                          required class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-600" />
+                </div>
+
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                    <select th:field="*{type}" id="typeSelect" onchange="toggleDateField()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <option value="">Selecione o tipo</option>
+                        <option value="CARTAO">CARTÃO</option>
+                        <option value="CORRENTE">CORRENTE</option>
+                    </select>
+                </div>
+                
+                <div id="dateField" class="hidden">
+                    <label for="data" class="block text-sm font-medium text-gray-700 mb-2">Data de Vencimento</label>
+                    <input type="date" th:field="*{dueDate}" id="dueDateInput"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                </div>
+                
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Descrição</label>
+                    <input required type="text" th:field="*{description}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                </div>
+
+                <div class="border-t pt-6">
+                    <div class="flex gap-4">
+                        <button type="submit" 
+                                class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                            Salvar
+                        </button>
+                        <a th:href="@{/accounts}" 
+                           class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-md transition-colors duration-200 text-center">
+                            Cancelar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleDateField() {
+            const typeSelect = document.getElementById('typeSelect');
+            const dateField = document.getElementById('dateField');
+            const dueDateInput = document.getElementById('dueDateInput');
+            
+            if (typeSelect.value === 'CARTAO') {
+                dateField.classList.remove('hidden');
+                dueDateInput.setAttribute('required', 'required');
+            } else {
+                dateField.classList.add('hidden');
+                dueDateInput.removeAttribute('required');
+                dueDateInput.value = ''; // Limpa o valor quando oculto
+            }
+        }
+        
+        // Verifica o valor inicial quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleDateField();
+        });
+    </script>
+</div>
+
+</html>

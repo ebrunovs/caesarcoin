@@ -1,10 +1,96 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Página Inicial da Aplicação</title>
-</head>
-<body>
-    <h1>caesarcoin no ar!</h1>
-</body>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Dashboard', contentFragment=~{:: content})">
+
+<div th:fragment="content">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p class="mt-2 text-gray-600">Bem-vindo ao CaesarCoin, sua plataforma de gestão financeira</p>
+        </div>
+
+        <!-- Welcome Card -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <div class="text-center">
+                <div class="mb-6">
+                    <div class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-coins text-2xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">CaesarCoin</h2>
+                    <p class="text-gray-600">Este é o CaesarCoin, o seu banco digital muito mais acessível.</p>
+                </div>
+
+                <div th:if="${session.user != null and session.user.admin}" class="mb-6">
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                        <div class="text-left">
+                            <h3 class="text-lg font-medium text-blue-900 mb-2">Como administrador, você poderá:</h3>
+                            <ul class="list-disc list-inside text-blue-800 space-y-1">
+                                <li>Adicionar ou consultar correntistas cadastrados usando o menu <strong>Correntistas</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                    <div class="text-left">
+                        <h3 class="text-lg font-medium text-green-900 mb-2">Como cliente, você poderá realizar operações na sua conta:</h3>
+                        <ul class="list-disc list-inside text-green-800 space-y-1">
+                            <li>Adicionar ou consultar contas cadastradas usando o menu <strong>Minhas Contas</strong></li>
+                            <li>Realizar créditos</li>
+                            <li>Realizar pagamentos</li>
+                            <!-- <li>Visualizar análise de gastos</li> -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exchange-alt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Nova Transação</h3>
+                    <p class="text-gray-600 mb-4">Registre uma nova movimentação financeira</p>
+                    <a th:href="@{/accounts/nuaccount}" 
+                       class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 inline-block">
+                        Criar Transação
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-wallet text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Minhas Contas</h3>
+                    <p class="text-gray-600 mb-4">Gerencie suas contas bancárias</p>
+                    <a th:href="@{/accounts}" 
+                       class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 inline-block">
+                        Ver Contas
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-tags text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Categorias</h3>
+                    <p class="text-gray-600 mb-4">Organize suas transações por categorias</p>
+                    <a th:href="@{/categories}" 
+                       class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 inline-block">
+                        Ver Categorias
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </html>
