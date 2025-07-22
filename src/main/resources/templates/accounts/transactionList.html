@@ -17,8 +17,8 @@
                     <span class="font-medium text-gray-600">Correntista:</span>
                     <span class="text-gray-900 ml-2" th:text="${account.accountOwner.name}"></span>
                 </div>
-                <div>
-                    <span class="font-medium text-gray-600">Data abertura:</span>
+                <div th:if="${account.type == 'CARTAO'}">
+                    <span class="font-medium text-gray-600">Data de Fechamento:</span>
                     <span class="text-gray-900 ml-2" th:text="${#temporals.format(account.dueDate, 'dd/MM/yyyy')}"></span>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden" th:if="${account.transactions != null and #lists.size(account.transactions) > 0}">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
@@ -100,6 +100,9 @@
                     </tr>
                 </tbody>
             </table>
+            <div th:if="${account.transactions == null or #lists.size(account.transactions) == 0}">
+                <p class="text-md text-gray-600">Nenhuma transação cadastrada, cadastre uma Transação clicando no botão "Nova Transação"!</p>
+            </div>
         </div>
     </div>
 </div>

@@ -65,16 +65,14 @@
                         </div>
                         <div class="flex gap-2 ml-4">
                             <a th:href="@{/transactions/view/{id}(id=${transaction.id}, editComment=${comment.id})}" 
-                               class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors">
-                                Editar
+                               class="text-blue-600 hover:text-blue-800 p-2 rounded-md hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-edit"></i>
                             </a>
-                            <form th:action="@{/comments/delete/{id}(id=${comment.id})}" method="POST" class="inline">
-                                <button type="submit" 
-                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
-                                        >
-                                    Excluir
-                                </button>
-                            </form>
+                            <a th:href="@{/comments/delete/{id}(id=${comment.id})}" 
+                               class="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-50 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        
                         </div>
                     </div>
                 </div>
@@ -125,7 +123,7 @@
                 
                 <button type="submit" 
                         class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium transition-colors">
-                    Adicionar Comentário
+                    Salvar
                 </button>
             </form>
         </div>
