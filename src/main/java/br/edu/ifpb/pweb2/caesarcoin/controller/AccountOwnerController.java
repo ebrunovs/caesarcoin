@@ -46,8 +46,14 @@ public class AccountOwnerController {
                 throw new InvalidDataException("Senha é obrigatória");
             }
             
+            boolean isNew = (accOwner.getId() == null);
+
             accOwnerService.save(accOwner);
-            attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
+            if (!isNew) {
+                attr.addFlashAttribute("message", "Correntista atualizado com sucesso!");
+            } else {
+                attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
+            }
             model.setViewName("redirect:accountowners");
         } catch (Exception e) {
             if (e instanceof InvalidDataException) {

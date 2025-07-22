@@ -85,9 +85,11 @@ public class AccountController {
                 existing.setValue(transaction.getValue());
                 existing.setDescription(transaction.getDescription());
                 existing.setDate(transaction.getDate());
+                existing.setType(transaction.getType());
                 existing.setCategory(catService.findById(transaction.getCategory().getId()));
                 transactionService.save(existing);
 
+                attr.addFlashAttribute("message", "Transação atualizada com sucesso!");
                 mav.setViewName("redirect:/accounts/" + existingAccount.getId() + "/transactions");
                 return mav;
             }
@@ -238,9 +240,15 @@ public class AccountController {
             if (user != null) {
                 account.setAccountOwner(user);
             }
-            
+
+            boolean isNew = (account.getId() == null);
+
             accService.save(account);
-            attr.addFlashAttribute("message","Conta inserida com sucesso");
+            if (!isNew) {
+                attr.addFlashAttribute("message", "Conta atualizada com sucesso!");
+            } else {
+                attr.addFlashAttribute("message", "Conta inserida com sucesso!");
+            }
             model.setViewName("redirect:/accounts");
         } catch (Exception e) {
             if (e instanceof InvalidDataException) {
