@@ -287,7 +287,7 @@ public class AccountController {
     }
 
 
-    @GetMapping("/{id}/delete")
+    @RequestMapping("/{id}/delete")
     public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
         accService.deleteById(id);
@@ -296,7 +296,7 @@ public class AccountController {
         return mav;
     }
 
-    @GetMapping("/transaction/{id}/delete")
+    @RequestMapping("/transaction/{id}/delete")
     public ModelAndView deleteTransactionById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
         Transaction transaction = transactionService.findById(id);

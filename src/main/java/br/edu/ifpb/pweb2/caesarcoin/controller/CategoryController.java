@@ -114,7 +114,7 @@ public class CategoryController {
         return Arrays.asList(nameCategories);
     }
 
-    @GetMapping("/{id}/delete")
+    @RequestMapping("/{id}/delete")
     public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
         catService.deleteById(id);
