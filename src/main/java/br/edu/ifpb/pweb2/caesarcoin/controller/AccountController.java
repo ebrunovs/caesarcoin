@@ -2,6 +2,8 @@ package br.edu.ifpb.pweb2.caesarcoin.controller;
 
 import java.util.List;
 
+import javax.naming.Binding;
+
 import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
@@ -11,9 +13,11 @@ import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -73,8 +77,16 @@ public class AccountController {
     }
 
     @PostMapping("/transaction")
-    public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, Transaction transaction, ModelAndView mav, RedirectAttributes attr) {
+    public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, @Valid Transaction transaction,BindingResult result ,ModelAndView mav, RedirectAttributes attr) {
         try {
+            if(result.hasErrors()) {
+                mav.addObject("transaction", transaction);
+                mav.setViewName("accounts/transactionForm");
+                return mav;
+            }
+
+
+
             if (transaction.getId() != null) {
                 Transaction existing = transactionService.findById(transaction.getId());
                 if (existing == null) {
@@ -222,8 +234,16 @@ public class AccountController {
     }
 
     @PostMapping
-    public ModelAndView save(Account account, ModelAndView model, RedirectAttributes attr, HttpSession session) {
+    public ModelAndView save(@Valid Account account,BindingResult result, ModelAndView model, RedirectAttributes attr, HttpSession session) {
         try {
+
+            if (result.hasErrors()) {
+                model.addObject("account", account);
+                model.setViewName("accounts/form");
+                return model;
+            }
+
+
             if (account.getNumber() == null || account.getNumber().trim().isEmpty()) {
                 throw new InvalidDataException("Número da conta é obrigatório");
             }
@@ -295,6 +315,9 @@ public class AccountController {
         mav.setViewName("redirect:/accounts");
         return mav;
     }
+
+
+        
 
     @GetMapping("/transaction/{id}/delete")
     public ModelAndView deleteTransactionById(@PathVariable(value = "id") Integer id,

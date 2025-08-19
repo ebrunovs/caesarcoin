@@ -46,8 +46,14 @@ public class AccountOwnerController {
                 throw new InvalidDataException("Senha é obrigatória");
             }
             
+            boolean isNew = (accOwner.getId() == null);
+
             accOwnerService.save(accOwner);
-            attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
+            if (!isNew) {
+                attr.addFlashAttribute("message", "Correntista atualizado com sucesso!");
+            } else {
+                attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
+            }
             model.setViewName("redirect:accountowners");
         } catch (Exception e) {
             if (e instanceof InvalidDataException) {
@@ -100,6 +106,24 @@ public class AccountOwnerController {
         accOwnerService.deleteById(id);
         attr.addFlashAttribute("message", "Correntista removido com sucesso!");
         mav.setViewName("redirect:/accountowners");
+        return mav;
+    }
+
+    @GetMapping("/{id}/block")
+    public ModelAndView blockById(@PathVariable(value = "id") Integer id, ModelAndView mav, RedirectAttributes attr) {
+        try {
+            AccountOwner accOwnerBlock = accOwnerService.findById(id);
+            if (accOwnerBlock == null) {
+                throw new ResourceNotFoundException("Correntista não encontrado");
+            }
+            accOwnerBlock.setEnabled(false);
+            accOwnerService.save(accOwnerBlock); 
+            
+            attr.addFlashAttribute("message", "Correntista bloqueado com sucesso!");
+            mav.setViewName("redirect:/accountowners");
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao bloquear correntista", e);
+        }
         return mav;
     }
 

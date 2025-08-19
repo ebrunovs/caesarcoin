@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,11 +24,16 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @NotBlank(message = "Data é obrigatória")
     private LocalDate date;
+    @NotBlank(message = "Descrição é obrigatória")
     private String description;
+    @NotBlank(message = "Valor é obrigatório")
+    @Min(value = 1, message = "Valor não pode ser negativo ou zero")
     private Double value;
     
     @Enumerated(EnumType.STRING)
+    @NotBlank(message = "Tipo de transação é obrigatório")
     private TransactionType type;
     
     @ManyToOne
