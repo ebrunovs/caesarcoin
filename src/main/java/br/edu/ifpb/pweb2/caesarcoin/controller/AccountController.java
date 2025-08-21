@@ -6,6 +6,7 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.Category;
+import br.edu.ifpb.pweb2.caesarcoin.model.ExtractData;
 import br.edu.ifpb.pweb2.caesarcoin.model.Transaction;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
@@ -312,6 +313,35 @@ public class AccountController {
         attr.addFlashAttribute("message", "Transação removida com sucesso!");
         String redirect = "redirect:/accounts/ " + transaction.getAccount().getId() + " /transactions";
         mav.setViewName(redirect);
+        return mav;
+    }
+
+    @GetMapping("/{id}/extract")
+    public ModelAndView getAccountExtract(@PathVariable(value = "id") Integer id,
+                                        @RequestParam(value = "startDate", required = false) String startDateStr,
+                                        @RequestParam(value = "endDate", required = false) String endDateStr,
+                                        ModelAndView mav) {
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada");
+            }
+
+            ExtractData extractData = transactionService.generateExtractWithDefaultDates(account, startDateStr, endDateStr);
+
+            mav.addObject("account", account);
+            mav.addObject("transactions", extractData.getTransactions());
+            mav.addObject("startDate", extractData.getStartDate().toString());
+            mav.addObject("endDate", extractData.getEndDate().toString());
+            mav.addObject("totalEntradas", extractData.getTotalIncomes());
+            mav.addObject("totalSaidas", extractData.getTotalOutcomes());
+            mav.addObject("totalInvestimentos", extractData.getTotalInvestments());
+            mav.addObject("saldoPeriodo", extractData.getPeriodBalance());
+            mav.setViewName("accounts/extract");
+            
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao gerar extrato da conta", e);
+        }
         return mav;
     }
 
