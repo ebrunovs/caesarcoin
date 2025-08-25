@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Orçamento Anual', contentFragment=~{:: content})">
+
+<div th:fragment="content">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Orçamento Anual</h1>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Informações da Conta</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <span class="font-medium text-gray-600">Número:</span>
+                    <span class="text-gray-900 ml-2" th:text="${account.number}"></span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-600">Correntista:</span>
+                    <span class="text-gray-900 ml-2" th:text="${account.accountOwner.name}"></span>
+                </div>
+                <div>
+                    <form th:action="@{/accounts/{id}/annual-budget(id=${account.id})}" method="GET" class="flex items-end gap-3">
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Ano</label>
+                            <input type="number" id="year" name="year" min="2000" max="2100"
+                                   th:value="${year}"
+                                   class="px-3 py-2 border border-gray-300 rounded-md w-28 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        </div>
+                        <div class="pb-1">
+                            <button type="submit"
+                                    class="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                                Alterar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${!hasData}" class="text-center py-12">
+            <div class="bg-gray-50 rounded-lg p-8">
+                <i class="fas fa-table text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Sem dados</h3>
+                <p class="text-gray-600">Não há transações registradas neste ano.</p>
+            </div>
+        </div>
+
+        <div th:if="${hasData}" class="overflow-x-auto relative">
+            <style>
+                /* Melhorias visuais específicas desta tabela */
+                .budget-table th, .budget-table td { white-space:nowrap; }
+                .budget-sticky-head thead tr:first-child th { position:sticky; top:0; z-index:30; backdrop-filter:blur(4px); }
+                .budget-sticky-col { position:sticky; left:0; z-index:25; background:linear-gradient(to right,#ffffff,#f8fafc); }
+                .budget-group-row { cursor:pointer; user-select:none; }
+                .budget-value-cell:not(.is-zero) { font-variant-numeric: tabular-nums; }
+                .budget-month-highlight { background:rgba(16,185,129,0.07); }
+                .budget-month-negative { background:rgba(239,68,68,0.08); }
+            </style>
+            <table class="budget-table min-w-full bg-white border border-gray-200 rounded-lg text-sm budget-sticky-head">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-medium text-gray-700 budget-sticky-col">Categoria</th>
+                        <th th:each="m : ${#numbers.sequence(1,12)}" class="px-2 py-2 text-center font-medium text-gray-700" th:text="${#strings.replace(#temporals.format(T(java.time.LocalDate).of(2000,m,1), 'MMM').toUpperCase(),'.','')}"></th>
+                        <th class="px-4 py-2 text-right font-medium text-gray-700">Total</th>
+                        <th class="px-3 py-2 text-right font-medium text-gray-700">Part %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Grupo Entradas -->
+                    <tr th:if="${incomes.size() > 0}" class="budget-group-row" data-group="incomes" onclick="toggleGroup('incomes')" title="Clique para expandir/recolher">
+                        <td colspan="15" class="bg-green-50 px-4 py-2 font-semibold text-green-700 flex items-center gap-2 budget-sticky-col">
+                            <span id="icon-incomes">➖</span>
+                            <i class="fas fa-arrow-up"></i> Entradas
+                        </td>
+                    </tr>
+                    <tr th:each="b : ${incomes}" class="border-t group-row-incomes">
+                        <td class="px-4 py-2 font-medium text-gray-800 budget-sticky-col" th:text="${b.category.name}"></td>
+                        <td th:each="i : ${#numbers.sequence(0,11)}" class="px-2 py-2 text-right budget-value-cell" th:classappend="${b.monthlyTotals[i] != 0} ? 'text-green-600 font-medium budget-month-highlight' : 'text-gray-400 is-zero'" th:text="${b.monthlyTotals[i] != 0 ? #numbers.formatCurrency(b.monthlyTotals[i]) : '-'}"></td>
+                        <td class="px-4 py-2 text-right font-semibold text-green-700" th:text="${#numbers.formatCurrency(b.annualTotal)}"></td>
+                        <td class="px-3 py-2 text-right text-green-700 font-medium" th:text="${incomeAnnual > 0 ? #numbers.formatDecimal((b.annualTotal * 100)/incomeAnnual,1,2) + '%' : '-'}"></td>
+                    </tr>
+                    <tr th:if="${incomes.size() > 0}" class="bg-green-100 font-semibold group-row-incomes">
+                        <td class="px-4 py-2 text-right budget-sticky-col">Subtotal Entradas</td>
+                        <td th:each="i : ${#numbers.sequence(0,11)}" class="px-2 py-2 text-right" th:text="${incomeMonths[i] != 0 ? #numbers.formatCurrency(incomeMonths[i]) : '-'}"></td>
+                        <td class="px-4 py-2 text-right" th:text="${#numbers.formatCurrency(incomeAnnual)}"></td>
+                        <td class="px-3 py-2 text-right"></td>
+                    </tr>
+
+                    <!-- Grupo Saídas -->
+                    <tr th:if="${outcomes.size() > 0}" class="budget-group-row" data-group="outcomes" onclick="toggleGroup('outcomes')" title="Clique para expandir/recolher">
+                        <td colspan="15" class="bg-red-50 px-4 py-2 font-semibold text-red-700 flex items-center gap-2 budget-sticky-col">
+                            <span id="icon-outcomes">➖</span>
+                            <i class="fas fa-arrow-down"></i> Saídas
+                        </td>
+                    </tr>
+                    <tr th:each="b : ${outcomes}" class="border-t group-row-outcomes">
+                        <td class="px-4 py-2 font-medium text-gray-800 budget-sticky-col" th:text="${b.category.name}"></td>
+                        <td th:each="i : ${#numbers.sequence(0,11)}" class="px-2 py-2 text-right budget-value-cell" th:classappend="${b.monthlyTotals[i] != 0} ? 'text-red-600 font-medium budget-month-negative' : 'text-gray-400 is-zero'" th:text="${b.monthlyTotals[i] != 0 ? #numbers.formatCurrency(b.monthlyTotals[i]) : '-'}"></td>
+                        <td class="px-4 py-2 text-right font-semibold text-red-700" th:text="${#numbers.formatCurrency(b.annualTotal)}"></td>
+                        <td class="px-3 py-2 text-right text-red-700 font-medium" th:text="${outcomeAnnual > 0 ? #numbers.formatDecimal((b.annualTotal * 100)/outcomeAnnual,1,2) + '%' : '-'}"></td>
+                    </tr>
+                    <tr th:if="${outcomes.size() > 0}" class="bg-red-100 font-semibold group-row-outcomes">
+                        <td class="px-4 py-2 text-right budget-sticky-col">Subtotal Saídas</td>
+                        <td th:each="i : ${#numbers.sequence(0,11)}" class="px-2 py-2 text-right" th:text="${outcomeMonths[i] != 0 ? #numbers.formatCurrency(outcomeMonths[i]) : '-'}"></td>
+                        <td class="px-4 py-2 text-right" th:text="${#numbers.formatCurrency(outcomeAnnual)}"></td>
+                        <td class="px-3 py-2 text-right"></td>
+                    </tr>
+
+                    <!-- Grupo Investimentos -->
+                    <tr th:if="${investments.size() > 0}" class="budget-group-row" data-group="investments" onclick="toggleGroup('investments')" title="Clique para expandir/recolher">
+                        <td colspan="15" class="bg-blue-50 px-4 py-2 font-semibold text-blue-700 flex items-center gap-2 budget-sticky-col">
+                            <span id="icon-investments">➖</span>
+                            <i class="fas fa-chart-line"></i> Investimentos
+                        </td>
+                    </tr>
+                    <tr th:each="b : ${investments}" class="border-t group-row-investments">
+                        <td class="px-4 py-2 font-medium text-gray-800 budget-sticky-col" th:text="${b.category.name}"></td>
+                        <td th:each="i : ${#numbers.sequence(0,11)}" class="px-2 py-2 text-right budget-value-cell" th:classappend="${b.monthlyTotals[i] != 0} ? 'text-blue-600 font-medium budget-month-highlight' : 'text-gray-400 is-zero'" th:text="${b.monthlyTotals[i] != 0 ? #numbers.formatCurrency(b.monthlyTotals[i]) : '-'}"></td>
+                        <td class="px-4 py-2 text-right font-semibold text-blue-700" th:text="${#numbers.formatCurrency(b.annualTotal)}"></td>
+                        <td class="px-3 py-2 text-right text-blue-700 font-medium" th:text="${investmentAnnual > 0 ? #numbers.formatDecimal((b.annualTotal * 100)/investmentAnnual,1,2) + '%' : '-'}"></td>
+                    </tr>
+                    <tr th:if="${investments.size() > 0}" class="bg-blue-100 font-semibold group-row-investments">
+                        <td class="px-4 py-2 text-right budget-sticky-col">Subtotal Investimentos</td>
+                        <td th:each="i : ${#numbers.sequence(0,11)}" class="px-2 py-2 text-right" th:text="${investmentMonths[i] != 0 ? #numbers.formatCurrency(investmentMonths[i]) : '-'}"></td>
+                        <td class="px-4 py-2 text-right" th:text="${#numbers.formatCurrency(investmentAnnual)}"></td>
+                        <td class="px-3 py-2 text-right"></td>
+                    </tr>
+
+                    <!-- Saldo -->
+                    <tr class="bg-gray-100 font-semibold">
+                        <td class="px-4 py-2 text-right budget-sticky-col">Saldo (Entradas - Saídas)</td>
+                        <td th:each="i : ${#numbers.sequence(0,11)}" class="px-2 py-2 text-right" th:classappend="${netMonths[i] >= 0} ? 'text-green-700' : 'text-red-600'" th:text="${netMonths[i] != 0 ? #numbers.formatCurrency(netMonths[i]) : '-'}"></td>
+                        <td class="px-4 py-2 text-right" th:classappend="${netAnnual >= 0} ? 'text-green-700' : 'text-red-600'" th:text="${#numbers.formatCurrency(netAnnual)}"></td>
+                        <td class="px-3 py-2"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="mt-4 text-xs text-gray-500 space-y-1">
+                <p><strong>Legenda:</strong> Part % = participação da categoria dentro do subtotal do grupo no ano.</p>
+                <p>Clique no título de cada grupo para expandir ou recolher.</p>
+            </div>
+            <script>
+                function toggleGroup(group) {    
+                    const rows = document.querySelectorAll('.group-row-' + group);
+                    const icon = document.getElementById('icon-' + group);
+                    let anyVisible = false;
+                    rows.forEach(r => { if (!r.classList.contains('hidden')) anyVisible = true; });
+                    rows.forEach(r => r.classList.toggle('hidden', anyVisible));
+                    if (icon) icon.textContent = anyVisible ? '➕' : '➖';
+                }
+            </script>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+            <a th:href="@{/accounts}"
+               class="text-orange-600 hover:text-orange-800 font-medium">← Voltar para lista de contas</a>
+        </div>
+    </div>
+</div>
+
+</html>
