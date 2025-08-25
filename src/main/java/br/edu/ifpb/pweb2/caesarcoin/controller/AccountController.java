@@ -1,13 +1,13 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
+import java.time.Year;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
-import br.edu.ifpb.pweb2.caesarcoin.model.Category;
-import br.edu.ifpb.pweb2.caesarcoin.model.ExtractData;
-import br.edu.ifpb.pweb2.caesarcoin.model.Transaction;
+import br.edu.ifpb.pweb2.caesarcoin.model.*;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,8 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import br.edu.ifpb.pweb2.caesarcoin.model.Account;
-import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountService;
 
@@ -343,6 +341,80 @@ public class AccountController {
             throw new BusinessException("Erro ao gerar extrato da conta", e);
         }
         return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget")
+    public ModelAndView getAnnualBudget(@PathVariable("id") Integer id,
+                                        @RequestParam(value = "year", required = false) Integer year,
+                                        ModelAndView mav) {
+        try {
+            if (id == null || id <= 0) {
+                throw new InvalidDataException("ID da conta inválido");
+            }
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada");
+            }
+            int selectedYear = (year == null) ? Year.now().getValue() : year;
+            List<AnnualCategoryBudget> rows = transactionService.generateAnnualBudget(account, selectedYear);
+
+            List<AnnualCategoryBudget> incomes = rows.stream().filter(r -> r.getCategory().getKind() == TransactionType.ENTRADA).collect(Collectors.toList());
+            List<AnnualCategoryBudget> outcomes = rows.stream().filter(r -> r.getCategory().getKind() == TransactionType.SAIDA).collect(Collectors.toList());
+            List<AnnualCategoryBudget> investments = rows.stream().filter(r -> r.getCategory().getKind() == TransactionType.INVESTIMENTO).collect(Collectors.toList());
+
+            // Totais mensais e anuais por natureza para facilitar exibição
+            double[] incomeMonths = sumMonths(incomes);
+            double[] outcomeMonths = sumMonths(outcomes);
+            double[] investmentMonths = sumMonths(investments);
+            double incomeAnnual = sumArray(incomeMonths);
+            double outcomeAnnual = sumArray(outcomeMonths);
+            double investmentAnnual = sumArray(investmentMonths);
+            double[] netMonths = new double[12];
+            for (int i = 0; i < 12; i++) {
+                netMonths[i] = incomeMonths[i] - outcomeMonths[i];
+            }
+            double netAnnual = incomeAnnual - outcomeAnnual;
+
+            mav.addObject("account", account);
+            mav.addObject("year", selectedYear);
+            mav.addObject("incomes", incomes);
+            mav.addObject("outcomes", outcomes);
+            mav.addObject("investments", investments);
+            mav.addObject("incomeMonths", incomeMonths);
+            mav.addObject("outcomeMonths", outcomeMonths);
+            mav.addObject("investmentMonths", investmentMonths);
+            mav.addObject("incomeAnnual", incomeAnnual);
+            mav.addObject("outcomeAnnual", outcomeAnnual);
+            mav.addObject("investmentAnnual", investmentAnnual);
+            mav.addObject("netMonths", netMonths);
+            mav.addObject("netAnnual", netAnnual);
+            mav.addObject("hasData", !rows.isEmpty());
+            mav.addObject("menu", "account");
+            mav.setViewName("accounts/annualBudget");
+        } catch (Exception e) {
+            if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new BusinessException("Erro ao gerar orçamento anual", e);
+        }
+        return mav;
+    }
+
+    private double[] sumMonths(List<AnnualCategoryBudget> list) {
+        double[] totals = new double[12];
+        for (AnnualCategoryBudget b : list) {
+            double[] mts = b.getMonthlyTotals();
+            for (int i = 0; i < 12; i++) {
+                totals[i] += mts[i];
+            }
+        }
+        return totals;
+    }
+
+    private double sumArray(double[] arr) {
+        double s = 0d;
+        for (double v : arr) s += v;
+        return s;
     }
 
 
