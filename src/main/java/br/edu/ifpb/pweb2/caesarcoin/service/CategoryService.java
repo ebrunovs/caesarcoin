@@ -5,6 +5,8 @@ import br.edu.ifpb.pweb2.caesarcoin.model.TransactionType;
 import br.edu.ifpb.pweb2.caesarcoin.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -18,6 +20,12 @@ public class CategoryService implements Service<Category, Integer> {
     public List<Category> findAll() {
         return catRepo.findAll();
     }
+
+    @Override
+    public Page<Category> findAll(Pageable p) {
+        return catRepo.findAll(p);
+    }
+
 
     public void deleteById(Integer id) {
         catRepo.deleteById(id);

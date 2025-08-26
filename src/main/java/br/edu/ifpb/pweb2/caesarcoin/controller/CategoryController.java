@@ -6,8 +6,11 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.Category;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -49,8 +52,15 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ModelAndView save(Category cat, ModelAndView model, RedirectAttributes attr){
+    public ModelAndView save(@Valid Category cat,BindingResult result, ModelAndView model, RedirectAttributes attr){
         try {
+                if (result.hasErrors()) {
+                model.addObject("category", cat);
+                model.addObject(BindingResult.MODEL_KEY_PREFIX + "category", result);
+                model.setViewName("categories/form");
+                return model;
+            }
+            
             if (cat.getName() == null || cat.getName().trim().isEmpty()) {
                 throw new InvalidDataException("Nome da categoria é obrigatório");
             }

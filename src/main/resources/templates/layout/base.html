@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <title th:text="${pageTitle} ?: 'CaesarCoin'">CaesarCoin</title>
@@ -34,17 +35,18 @@
 </head>
 
 <body class="bg-gray-100 font-sans text-gray-800">
-    <div class="flex h-screen">
+    <!-- Layout para usuários autenticados -->
+    <div sec:authorize="isAuthenticated()" class="flex h-screen">
         <!-- Sidebar -->
-        <nav class="w-70 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col shadow-lg fixed h-full left-0 top-0 z-50" th:if="${session.user != null}">
+        <nav class="w-70 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col shadow-lg">
             <!-- User Profile Section -->
             <div class="p-6 border-b border-white border-opacity-10 flex items-center gap-4">
                 <div class="w-11 h-11 bg-orange-500 rounded-full flex items-center justify-center text-xl text-white flex-shrink-0">
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-info">
-                    <h3 class="text-sm font-semibold mb-1 text-white leading-tight" th:text="${session.user.name} ?: 'Usuário'">Daniela Laurent</h3>
-                    <p class="text-xs text-gray-400 leading-tight" th:text="${session.user.email} ?: 'email@domain.com'">danielaLau@gmail.com</p>
+                    <h3 class="text-sm font-semibold mb-1 text-white leading-tight" th:text="${session.user?.name} ?: ${#authentication.name}">Usuário</h3>
+                    <p class="text-xs text-gray-400 leading-tight" th:text="${session.user?.email} ?: ${#authentication.name}">email@domain.com</p>
                 </div>
             </div>
             
@@ -58,7 +60,7 @@
                 </li>
                 
                 <li class="mb-0.5" th:classappend="${menu == 'accountowner'} ? 'bg-orange-500 border-l-4 border-orange-400'"
-                    th:if="${session.user != null and session.user.admin}">
+                    sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{/accountowners}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
                         <i class="fas fa-users mr-3 w-4 text-center text-base"></i>
                         <span>Correntistas</span>
@@ -72,7 +74,8 @@
                     </a>
                 </li>
                 
-                <li class="mb-0.5" th:classappend="${menu == 'category'} ? 'bg-orange-500 border-l-4 border-orange-400'">
+                <li class="mb-0.5" th:classappend="${menu == 'category'} ? 'bg-orange-500 border-l-4 border-orange-400'"
+                sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{/categories}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
                         <i class="fas fa-tags mr-3 w-4 text-center text-base"></i>
                         <span>Categorias</span>
@@ -85,13 +88,6 @@
                         <span>Minhas Contas</span>
                     </a>
                 </li>
-                
-                <!-- <li class="mb-0.5" th:classappend="${menu == 'analytics'} ? 'bg-orange-500 border-l-4 border-orange-400'">
-                    <a th:href="@{/analytics}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
-                        <i class="fas fa-chart-bar mr-3 w-4 text-center text-base"></i>
-                        <span>Análise de gastos</span>
-                    </a>
-                </li> -->
             </ul>
             
             <!-- Logout Button -->
@@ -104,14 +100,7 @@
         </nav>
         
         <!-- Main Content -->
-        <div class="flex-1" th:classappend="${session.user != null} ? 'ml-70' : ''">
-            <!-- Top Bar (only when not logged in) -->
-            <div th:if="${session.user == null}" class="bg-white shadow-sm border-b p-4">
-                <div class="flex items-center">
-                    <img th:src="@{/images/caesarcoin-header.png}" alt="CaesarCoin logo" class="h-8" />
-                </div>
-            </div>
-            
+        <main class="flex-1 overflow-auto">
             <!-- Page Content -->
             <div class="p-6">
                 <div th:replace="${contentFragment}">
@@ -119,6 +108,26 @@
                         <h1 class="text-3xl font-bold text-gray-900 mb-4">Bem-vindo ao CaesarCoin</h1>
                         <p class="text-gray-600">Seu banco digital mais acessível.</p>
                     </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Layout para usuários não autenticados -->
+    <div sec:authorize="!isAuthenticated()">
+        <!-- Top Bar -->
+        <div class="bg-white shadow-sm border-b p-4">
+            <div class="flex items-center">
+                <img th:src="@{/images/caesarcoin-header.png}" alt="CaesarCoin logo" class="h-8" />
+            </div>
+        </div>
+        
+        <!-- Page Content -->
+        <div class="p-6">
+            <div th:replace="${contentFragment}">
+                <div class="text-center py-12">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">Bem-vindo ao CaesarCoin</h1>
+                    <p class="text-gray-600">Seu banco digital mais acessível.</p>
                 </div>
             </div>
         </div>
