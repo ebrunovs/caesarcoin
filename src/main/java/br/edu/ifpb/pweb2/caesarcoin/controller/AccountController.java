@@ -10,6 +10,7 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.*;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import br.edu.ifpb.pweb2.caesarcoin.util.CategoryColorHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -468,24 +469,19 @@ public class AccountController {
     }
 
     private List<ChartDataset> createDatasets(List<AnnualCategoryBudget> budget, List<Integer> categoryIds, TransactionType type, String baseColor) {
-        String[] colors = {
-            "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", 
-            "#FF9F40", "#8AC926", "#1982C4", "#6A4C93", "#FF6B6B",
-            "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD"
-        };
-        
         List<ChartDataset> result = new java.util.ArrayList<>();
-        int colorIndex = 0;
         
         for (AnnualCategoryBudget b : budget) {
             if (b.getCategory().getKind() == type && categoryIds.contains(b.getCategory().getId())) {
-                String color = colorIndex < colors.length ? colors[colorIndex] : baseColor;
+                Category category = b.getCategory();
+                String borderColor = CategoryColorHelper.getColorForCategory(category);
+                String backgroundColor = CategoryColorHelper.getBackgroundColorForCategory(category);
+                
                 List<Double> data = new java.util.ArrayList<>();
                 for (double total : b.getMonthlyTotals()) {
                     data.add(total);
                 }
-                result.add(new ChartDataset(b.getCategory().getName(), data, color, color + "33"));
-                colorIndex++;
+                result.add(new ChartDataset(category.getName(), data, borderColor, backgroundColor));
             }
         }
         
