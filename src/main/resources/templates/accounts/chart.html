@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: html(pageTitle='CaesarCoin - Gráfico Anual', contentFragment=~{:: content})">
+
+<div th:fragment="content">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Gráfico do Orçamento Anual</h1>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Informações da Conta</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                <div>
+                    <span class="font-medium text-gray-600">Número:</span>
+                    <span class="text-gray-900 ml-2" th:text="${account.number}"></span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-600">Correntista:</span>
+                    <span class="text-gray-900 ml-2" th:text="${account.accountOwner.name}"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros sempre visíveis -->
+        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Filtros do Gráfico</h3>
+            <form id="chart-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Ano</label>
+                        <select id="year" name="year"
+                                class="px-3 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                            <option th:each="y : ${#numbers.sequence(T(java.time.Year).now().getValue(), 2020)}"
+                                    th:value="${y}" th:text="${y}" th:selected="${y == year}"></option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="incomes" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-arrow-up text-green-600 mr-1"></i>Entradas
+                        </label>
+                        <div class="category-selector" data-type="incomes" data-color="green">
+                            <div class="chips-container mb-2" id="incomes-chips"></div>
+                            <select id="incomes" name="incomes" multiple class="hidden">
+                                <option th:each="cat : ${allIncomes}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                            <button type="button" class="add-category-btn w-full px-3 py-2 border-2 border-dashed border-green-300 rounded-md text-green-600 hover:border-green-400 hover:bg-green-50 transition-colors text-sm">
+                                <i class="fas fa-plus mr-1"></i>Adicionar categoria
+                            </button>
+                            <div class="category-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                <div th:each="cat : ${allIncomes}" 
+                                     class="category-option px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                     th:data-value="${cat.id}" 
+                                     th:text="${cat.name}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="outcomes" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-arrow-down text-red-600 mr-1"></i>Saídas
+                        </label>
+                        <div class="category-selector" data-type="outcomes" data-color="red">
+                            <div class="chips-container mb-2" id="outcomes-chips"></div>
+                            <select id="outcomes" name="outcomes" multiple class="hidden">
+                                <option th:each="cat : ${allOutcomes}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                            <button type="button" class="add-category-btn w-full px-3 py-2 border-2 border-dashed border-red-300 rounded-md text-red-600 hover:border-red-400 hover:bg-red-50 transition-colors text-sm">
+                                <i class="fas fa-plus mr-1"></i>Adicionar categoria
+                            </button>
+                            <div class="category-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                <div th:each="cat : ${allOutcomes}" 
+                                     class="category-option px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                     th:data-value="${cat.id}" 
+                                     th:text="${cat.name}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="investments" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-chart-line text-blue-600 mr-1"></i>Investimentos
+                        </label>
+                        <div class="category-selector" data-type="investments" data-color="blue">
+                            <div class="chips-container mb-2" id="investments-chips"></div>
+                            <select id="investments" name="investments" multiple class="hidden">
+                                <option th:each="cat : ${allInvestments}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                            <button type="button" class="add-category-btn w-full px-3 py-2 border-2 border-dashed border-blue-300 rounded-md text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-colors text-sm">
+                                <i class="fas fa-plus mr-1"></i>Adicionar categoria
+                            </button>
+                            <div class="category-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                <div th:each="cat : ${allInvestments}" 
+                                     class="category-option px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                     th:data-value="${cat.id}" 
+                                     th:text="${cat.name}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end items-center">
+                    <div class="flex gap-3">
+                        <button type="button" id="select-all-btn"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-check-double mr-1"></i>Selecionar Todas
+                        </button>
+                        <button type="button" id="clear-all-btn"
+                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-times mr-1"></i>Limpar Seleção
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Área do gráfico separada -->
+        <div id="chart-container" class="bg-gray-50 rounded-lg p-4" style="height: 400px;">
+            <canvas id="annual-chart"></canvas>
+        </div>
+
+        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div class="flex items-center text-blue-700 text-sm">
+                <i class="fas fa-info-circle mr-2"></i>
+                <span>Selecione pelo menos uma categoria para visualizar o gráfico. Os dados são atualizados automaticamente.</span>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+            <a th:href="@{/accounts/{id}/annual-budget(id=${account.id}, year=${year})}"
+               class="text-orange-600 hover:text-orange-800 font-medium">← Voltar para o orçamento anual</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .category-selector {
+            position: relative;
+        }
+        
+        .chips-container {
+            min-height: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background-color: #f9fafb;
+        }
+        
+        .chips-container:empty::before {
+            content: 'Nenhuma categoria selecionada';
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+        
+        .category-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            animation: chipIn 0.2s ease-out;
+        }
+        
+        .category-chip.green {
+            background-color: #10b981;
+        }
+        
+        .category-chip.red {
+            background-color: #ef4444;
+        }
+        
+        .category-chip.blue {
+            background-color: #3b82f6;
+        }
+        
+        .category-chip .remove-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .category-chip .remove-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .category-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-option.selected {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+        
+        @keyframes chipIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+    
+    <script th:inline="javascript">
+        const accountId = /*[[${account.id}]]*/ 0;
+        const form = document.getElementById('chart-form');
+        const yearSelect = document.getElementById('year');
+        const incomeSelect = document.getElementById('incomes');
+        const outcomeSelect = document.getElementById('outcomes');
+        const investmentSelect = document.getElementById('investments');
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        
+        let chart = null;
+
+        // Inicializar sistema de chips
+        function initializeChipSystem() {
+            const selectors = document.querySelectorAll('.category-selector');
+            
+            selectors.forEach(selector => {
+                const type = selector.dataset.type;
+                const color = selector.dataset.color;
+                const addBtn = selector.querySelector('.add-category-btn');
+                const dropdown = selector.querySelector('.category-dropdown');
+                const chipsContainer = selector.querySelector('.chips-container');
+                const select = document.getElementById(type);
+                
+                // Abrir/fechar dropdown
+                addBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeAllDropdowns();
+                    dropdown.classList.toggle('hidden');
+                });
+                
+                // Selecionar categoria
+                dropdown.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evita que o clique se propague e feche o dropdown
+                    if (e.target.classList.contains('category-option')) {
+                        const value = e.target.dataset.value;
+                        const text = e.target.textContent;
+                        
+                        if (!e.target.classList.contains('selected')) {
+                            addChip(chipsContainer, value, text, color, type);
+                            updateSelectOption(select, value, true);
+                            e.target.classList.add('selected');
+                            updateChart();
+                        }
+                    }
+                });
+            });
+            
+            // Event listener global para fechar dropdowns ao clicar fora
+            document.addEventListener('click', (e) => {
+                // Só fecha se o clique não foi em nenhum elemento do sistema de categorias
+                if (!e.target.closest('.category-selector')) {
+                    closeAllDropdowns();
+                }
+            });
+        }
+        
+        function closeAllDropdowns() {
+            document.querySelectorAll('.category-dropdown').forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+        }
+        
+        function addChip(container, value, text, color, type) {
+            const chip = document.createElement('div');
+            chip.className = `category-chip ${color}`;
+            chip.dataset.value = value;
+            chip.innerHTML = `
+                <span>${text}</span>
+                <button type="button" class="remove-btn" onclick="removeChip(this, '${type}')">
+                    <i class="fas fa-times" style="font-size: 8px;"></i>
+                </button>
+            `;
+            container.appendChild(chip);
+        }
+        
+        window.removeChip = function(btn, type) {
+            const chip = btn.closest('.category-chip');
+            const value = chip.dataset.value;
+            const select = document.getElementById(type);
+            const selector = btn.closest('.category-selector');
+            const dropdown = selector.querySelector('.category-dropdown');
+            
+            // Remover chip
+            chip.remove();
+            
+            // Atualizar select
+            updateSelectOption(select, value, false);
+            
+            // Atualizar estado do dropdown
+            const option = dropdown.querySelector(`[data-value="${value}"]`);
+            if (option) {
+                option.classList.remove('selected');
+            }
+            
+            updateChart();
+        };
+        
+        function updateSelectOption(select, value, selected) {
+            const option = select.querySelector(`option[value="${value}"]`);
+            if (option) {
+                option.selected = selected;
+            }
+        }
+        
+        function selectAllCategories() {
+            clearAllSelections();
+            
+            const selectors = document.querySelectorAll('.category-selector');
+            selectors.forEach(selector => {
+                const type = selector.dataset.type;
+                const color = selector.dataset.color;
+                const chipsContainer = selector.querySelector('.chips-container');
+                const select = document.getElementById(type);
+                const dropdown = selector.querySelector('.category-dropdown');
+                
+                const options = dropdown.querySelectorAll('.category-option');
+                options.forEach(option => {
+                    const value = option.dataset.value;
+                    const text = option.textContent;
+                    
+                    addChip(chipsContainer, value, text, color, type);
+                    updateSelectOption(select, value, true);
+                    option.classList.add('selected');
+                });
+            });
+            
+            updateChart();
+        }
+        
+        function clearAllSelections() {
+            // Limpar todos os chips
+            document.querySelectorAll('.chips-container').forEach(container => {
+                container.innerHTML = '';
+            });
+            
+            // Limpar selects
+            [incomeSelect, outcomeSelect, investmentSelect].forEach(select => {
+                for (let option of select.options) {
+                    option.selected = false;
+                }
+            });
+            
+            // Limpar estado dos dropdowns
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            updateChart();
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        async function updateChart() {
+            const year = yearSelect.value;
+            const incomes = Array.from(incomeSelect.selectedOptions).map(opt => opt.value);
+            const outcomes = Array.from(outcomeSelect.selectedOptions).map(opt => opt.value);
+            const investments = Array.from(investmentSelect.selectedOptions).map(opt => opt.value);
+
+            if (incomes.length === 0 && outcomes.length === 0 && investments.length === 0) {
+                if (chart) {
+                    chart.destroy();
+                    chart = null;
+                }
+                
+                // Mostrar mensagem quando não há seleção
+                const chartContainer = document.getElementById('chart-container');
+                chartContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-4xl mb-2"></i>
+                            <p>Selecione pelo menos uma categoria para visualizar o gráfico</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Garantir que o canvas existe
+            let ctx = document.getElementById('annual-chart');
+            if (!ctx) {
+                const chartContainer = document.getElementById('chart-container');
+                chartContainer.innerHTML = '<canvas id="annual-chart"></canvas>';
+                ctx = document.getElementById('annual-chart');
+            }
+
+            const params = new URLSearchParams({ year });
+            incomes.forEach(id => params.append('incomes', id));
+            outcomes.forEach(id => params.append('outcomes', id));
+            investments.forEach(id => params.append('investments', id));
+
+            try {
+                const response = await fetch(`/accounts/${accountId}/annual-budget/chart?${params.toString()}`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                const chartData = await response.json();
+                
+                renderChart(chartData, year);
+            } catch (error) {
+                console.error("Erro ao carregar dados do gráfico:", error);
+                showError("Erro ao carregar os dados do gráfico. Tente novamente.");
+            }
+        }
+
+        function renderChart(chartData, year) {
+            // Garantir que o canvas existe antes de renderizar
+            let ctx = document.getElementById('annual-chart');
+            if (!ctx) {
+                const chartContainer = document.getElementById('chart-container');
+                chartContainer.innerHTML = '<canvas id="annual-chart"></canvas>';
+                ctx = document.getElementById('annual-chart');
+            }
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: chartData.datasets.map(ds => ({
+                        label: ds.label,
+                        data: ds.data,
+                        borderColor: ds.borderColor,
+                        backgroundColor: ds.backgroundColor,
+                        fill: false,
+                        tension: 0.1,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8,
+                                padding: 15,
+                                generateLabels: function(chart) {
+                                    const labels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                                    return labels.map(label => {
+                                        label.text = label.text.length > 20 ? label.text.substring(0, 20) + '...' : label.text;
+                                        return label;
+                                    });
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += formatCurrency(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `Orçamento Anual - ${year}`,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Meses'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Valor (R$)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                }
+            });
+        }
+
+        function showError(message) {
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = `
+                <div class="flex items-center justify-center h-full text-red-500">
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+                        <p>${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Event listeners
+        yearSelect.addEventListener('change', updateChart);
+        selectAllBtn.addEventListener('click', selectAllCategories);
+        clearAllBtn.addEventListener('click', clearAllSelections);
+        
+        // Inicializar sistema na carga da página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChipSystem();
+            updateChart(); // Renderização inicial (vazio)
+        });
+    </script>
+</div>
+</html>
