@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
-import br.edu.ifpb.pweb2.caesarcoin.model.Account;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
