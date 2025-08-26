@@ -50,4 +50,8 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
         return userRepo.findByEnabledTrue();
     }
 
+    public AccountOwner findByEmail(String email) {
+        return accOwnerRepo.findByEmail(email);
+    }
+
 }

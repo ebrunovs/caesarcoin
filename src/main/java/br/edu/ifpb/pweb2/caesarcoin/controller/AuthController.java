@@ -1,12 +1,17 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifpb.pweb2.caesarcoin.exception.*;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
@@ -18,6 +23,9 @@ import jakarta.validation.Valid;
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
+
+    @Autowired
+    private AccountOwnerRepository accOwnerRepo;
 
     @GetMapping
     public ModelAndView getForm(ModelAndView model,
@@ -92,11 +100,11 @@ public class AuthController {
         } catch (Exception e) {
             throw new BusinessException("Erro na validação de credenciais", e);
         }
-        if (logout != null) {
-            model.addObject("message", "Logout realizado com sucesso");
-            model.addObject("messageType", "success");
-        }
+        // if (logout != null) {
+        //     model.addObject("message", "Logout realizado com sucesso");
+        //     model.addObject("messageType", "success");
+        // }
         
-        return model;
+        // return model;
     }
 }

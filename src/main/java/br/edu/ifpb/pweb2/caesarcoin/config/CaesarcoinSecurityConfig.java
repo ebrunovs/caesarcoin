@@ -61,31 +61,10 @@ public class CaesarcoinSecurityConfig {
     public UserDetailsService userDetailsService() {
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
         
-        // Sincroniza AccountOwners existentes com tabelas de segurança
-        syncAccountOwnersToSecurityTables(users);
-        
         // Cria usuários padrão se não existirem
         createDefaultUsersIfNotExists(users);
         
         return users;
-    }
-
-    private void syncAccountOwnersToSecurityTables(JdbcUserDetailsManager users) {
-        // Sincroniza todos os AccountOwners existentes
-        accountOwnerRepository.findAll().forEach(owner -> {
-            if (!users.userExists(owner.getEmail())) {
-                String[] roles = owner.isAdmin() ? 
-                    new String[]{"USER", "ADMIN"} : 
-                    new String[]{"USER"};
-                
-                UserDetails userDetails = User.withUsername(owner.getEmail())
-                    .password(owner.getPassword()) // Já está em BCrypt
-                    .roles(roles)
-                    .build();
-                    
-                users.createUser(userDetails);
-            }
-        });
     }
 
     private void createDefaultUsersIfNotExists(JdbcUserDetailsManager users) {
@@ -116,20 +95,25 @@ public class CaesarcoinSecurityConfig {
             users.createUser(caesar);
         }
         
-        // Cria AccountOwners correspondentes se não existirem
-        createAccountOwnerIfNotExists("admin@caesarcoin.com", "Administrador Sistema", true);
-        createAccountOwnerIfNotExists("demo@caesarcoin.com", "Usuário Demo", false);
-        createAccountOwnerIfNotExists("caesar@rome.com", "Gaius Julius Caesar", false);
+        // Cria AccountOwners correspondentes se não existirem (nomes válidos)
+        createAccountOwnerIfNotExists("admin@caesarcoin.com", "Admin Sistema", true);
+        createAccountOwnerIfNotExists("demo@caesarcoin.com", "Usuario Demo", false);
+        createAccountOwnerIfNotExists("caesar@rome.com", "Julius Caesar", true);
     }
     
     private void createAccountOwnerIfNotExists(String email, String name, boolean isAdmin) {
-        if (accountOwnerRepository.findByEmail(email) == null) {
-            AccountOwner owner = new AccountOwner();
-            owner.setEmail(email);
-            owner.setName(name);
-            owner.setPassword(passwordEncoder().encode(email.split("@")[0] + "123")); // senha baseada no username
-            owner.setAdmin(isAdmin);
-            accountOwnerRepository.save(owner);
+        try {
+            if (accountOwnerRepository.findByEmail(email) == null) {
+                AccountOwner owner = new AccountOwner();
+                owner.setEmail(email);
+                owner.setName(name); // Nomes sem caracteres especiais
+                owner.setPassword(passwordEncoder().encode(email.split("@")[0] + "123"));
+                owner.setAdmin(isAdmin);
+                accountOwnerRepository.save(owner);
+            }
+        } catch (Exception e) {
+            // Log do erro mas não interrompe a inicialização
+            System.err.println("Erro ao criar AccountOwner para " + email + ": " + e.getMessage());
         }
     }
 
