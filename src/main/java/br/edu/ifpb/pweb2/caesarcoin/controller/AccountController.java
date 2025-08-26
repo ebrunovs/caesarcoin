@@ -77,81 +77,62 @@ public class AccountController {
     }
 
     @PostMapping("/transaction")
-    public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, @Valid Transaction transaction,BindingResult result ,ModelAndView mav, RedirectAttributes attr) {
+    public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, 
+                                  @Valid Transaction transaction,
+                                  BindingResult result,
+                                  ModelAndView mav, 
+                                  RedirectAttributes attr) {
         try {
-            if(result.hasErrors()) {
+            if (result.hasErrors()) {
+                Account account = accService.findById(idAccount);
+                mav.addObject("account", account);
                 mav.addObject("transaction", transaction);
                 mav.setViewName("accounts/transactionForm");
                 return mav;
             }
 
-
+            Account account = accService.findByIdWithTransactions(idAccount);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada: " + idAccount);
+            }
 
             if (transaction.getId() != null) {
+                // Lógica de atualização
                 Transaction existing = transactionService.findById(transaction.getId());
                 if (existing == null) {
                     throw new ResourceNotFoundException("Transação não encontrada");
                 }
-                
-                Account existingAccount = existing.getAccount();
-                existing.setValue(transaction.getValue());
-                existing.setDescription(transaction.getDescription());
-                existing.setDate(transaction.getDate());
-                existing.setCategory(catService.findById(transaction.getCategory().getId()));
+                updateExistingTransaction(existing, transaction);
                 transactionService.save(existing);
-
-                mav.setViewName("redirect:/accounts/" + existingAccount.getId() + "/transactions");
-                return mav;
-            }
-
-            if (idAccount != null && transaction.getValue() == null) {
-                Account account = accService.findByIdWithTransactions(idAccount);
-                if (account != null) {
-                    transaction.setCategory(new Category());
-                    mav.addObject("account", account);
-                    mav.addObject("transaction", transaction);
-                    mav.setViewName("accounts/transactionForm");
-                } else {
-                    throw new ResourceNotFoundException("Conta inexistente!");
-                }
+                attr.addFlashAttribute("message", "Transação atualizada com sucesso!");
             } else {
-                if (idAccount == null || idAccount <= 0) {
-                    throw new InvalidDataException("ID da conta é obrigatório");
-                }
-                if (transaction.getValue() == null || transaction.getValue().doubleValue() <= 0) {
-                    throw new InvalidDataException("Valor deve ser maior que zero");
-                }
-                if (transaction.getDescription() == null || transaction.getDescription().trim().isEmpty()) {
-                    throw new InvalidDataException("Descrição é obrigatória");
-                }
-                if (transaction.getCategory() == null || transaction.getCategory().getId() == null) {
-                    throw new InvalidDataException("Categoria é obrigatória");
-                }
-                
-                Account account = accService.findByIdWithTransactions(idAccount);
-                if (account == null) {
-                    throw new ResourceNotFoundException("Conta não encontrada: " + idAccount);
-                }
-                
-                Integer categoryId = transaction.getCategory().getId();
-                Category category = catService.findById(categoryId);
+                // Lógica de nova transação
+                Category category = catService.findById(transaction.getCategory().getId());
                 if (category == null) {
                     throw new ResourceNotFoundException("Categoria não encontrada");
                 }
-                
                 account.addTransaction(transaction, category);
                 accService.save(account);
-
                 attr.addFlashAttribute("message", "Transação cadastrada com sucesso!");
-                mav.setViewName("redirect:/accounts/" + account.getId() + "/transactions");
             }
+
+            mav.setViewName("redirect:/accounts/" + account.getId() + "/transactions");
+            return mav;
+
         } catch (Exception e) {
-            if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {
+            if (e instanceof ResourceNotFoundException || e instanceof InvalidDataException) {
                 throw e;
             }
             throw new BusinessException("Erro no processamento da transação", e);
         }
-        return mav;
+    }
+
+    private void updateExistingTransaction(Transaction existing, Transaction updated) {
+        existing.setValue(updated.getValue());
+        existing.setDescription(updated.getDescription());
+        existing.setDate(updated.getDate());
+        existing.setType(updated.getType());
+        existing.setCategory(catService.findById(updated.getCategory().getId()));
     }
 
 
@@ -238,20 +219,12 @@ public class AccountController {
         try {
 
             if (result.hasErrors()) {
+                AccountOwner user = (AccountOwner) session.getAttribute("user");
+                account.setAccountOwner(user);
                 model.addObject("account", account);
+                model.addObject(BindingResult.MODEL_KEY_PREFIX + "account", result);
                 model.setViewName("accounts/form");
                 return model;
-            }
-
-
-            if (account.getNumber() == null || account.getNumber().trim().isEmpty()) {
-                throw new InvalidDataException("Número da conta é obrigatório");
-            }
-            if (account.getDescription() == null || account.getDescription().trim().isEmpty()) {
-                throw new InvalidDataException("Descrição é obrigatória");
-            }
-            if (account.getType() == null) {
-                throw new InvalidDataException("Tipo da conta é obrigatório");
             }
             
             AccountOwner user = (AccountOwner) session.getAttribute("user");

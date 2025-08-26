@@ -24,7 +24,6 @@ public class Account implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @NotBlank(message = "Número da conta é obrigatório")
     @Pattern(regexp = "^.{5}$", message = "Número da conta deve estar no formato xxxxx")
     private String number;
     @NotBlank(message = "Conta deve ter uma descrição")

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
-      th:replace="layout/base :: html(pageTitle='CaesarCoin - Cadastro de Conta', contentFragment=~{:: content})">
+th:replace="~{layout/base :: html(pageTitle='CaesarCoin - Cadastro de Correntista', contentFragment=~{:: content})}">
 
 <div th:fragment="content">
     <div class="max-w-4xl mx-auto">
@@ -12,19 +12,24 @@
 
                 <div>
                     <label for="account" class="block text-sm font-medium text-gray-700 mb-2">Número</label>
+                    <p th:if="${#fields.hasErrors('number')}" th:errorclass="error" th:errors="*{number}" id="error-number" class="text-red-600 text-sm mt-1" ></p>
                     <input type="text" th:field="*{number}" 
-                         required  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                           onfocus="document.getElementById('error-number').classList.add('hidden')"
+                           />
                 </div>
 
                 <div>
                     <label for="accountowner" class="block text-sm font-medium text-gray-700 mb-2">Correntista</label>
                     <input type="text" th:value="${account.accountOwner.name}" readonly 
-                          required class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-600" />
+                           class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-600" />
                 </div>
 
                 <div>
                     <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                    <p th:if="${#fields.hasErrors('type')}" th:errorclass="error" th:errors="*{type}" id="error-type" class="text-red-600 text-sm mt-1" ></p>
                     <select th:field="*{type}" id="typeSelect" onchange="toggleDateField()"
+                            onfocus="document.getElementById('error-type').classList.add('hidden')"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
                         <option value="">Selecione o tipo</option>
                         <option value="CARTAO">CARTÃO</option>
@@ -34,14 +39,20 @@
                 
                 <div id="dateField" class="hidden">
                     <label for="data" class="block text-sm font-medium text-gray-700 mb-2">Data de Vencimento</label>
+                    <p th:if="${#fields.hasErrors('dueDate')}" th:errorclass="error" th:errors="*{dueDate}" id="error-date" class="text-red-600 text-sm mt-1" ></p>
                     <input type="date" th:field="*{dueDate}" id="dueDateInput"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                          onfocus="document.getElementById('error-date').classList.add('hidden')"
+                          />
                 </div>
                 
                 <div>
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Descrição</label>
-                    <input required type="text" th:field="*{description}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                    <p th:if="${#fields.hasErrors('description')}" th:errorclass="error" th:errors="*{description}" id="error-description" class="text-red-600 text-sm mt-1" ></p>
+                    <input  type="text" th:field="*{description}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                           onfocus="document.getElementById('error-description').classList.add('hidden')"
+                           />
                 </div>
 
                 <div class="border-t pt-6">

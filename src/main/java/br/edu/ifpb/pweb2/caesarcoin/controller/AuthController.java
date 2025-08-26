@@ -42,6 +42,14 @@ public class AuthController {
     @PostMapping
     public ModelAndView validate(@Valid AccountOwner accOwner, BindingResult result, HttpSession session, ModelAndView model, RedirectAttributes attr) {
         try {
+
+            if (result.hasErrors()) {
+                model.addObject("user", accOwner);
+                model.addObject(BindingResult.MODEL_KEY_PREFIX + "user", result);
+                model.setViewName("auth/login");
+                return model;
+            }
+            
             if (accOwner.getEmail() == null || accOwner.getEmail().trim().isEmpty()) {
                 throw new InvalidDataException("Email é obrigatório");
             }
@@ -83,12 +91,10 @@ public class AuthController {
             boolean valid = false;
             
             if (accOwnerBD != null) {
-                // Verifica primeiro se está bloqueado
                 if (!accOwnerBD.isEnabled()) {
                     throw new InvalidDataException("Usuário bloqueado!");
                 }
                 
-                // Só verifica a senha se não estiver bloqueado
                 if (PasswordUtil.checkPass(accOwner.getPassword(), accOwnerBD.getPassword())) {
                     valid = true;
                 }

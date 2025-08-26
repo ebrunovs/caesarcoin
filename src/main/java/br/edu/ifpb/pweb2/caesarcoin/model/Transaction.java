@@ -7,6 +7,7 @@ import java.util.List;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,26 +24,31 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    @NotBlank(message = "Data é obrigatória")
+
+    @NotNull(message = "Data é obrigatória")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+
     @NotBlank(message = "Descrição é obrigatória")
     private String description;
-    @NotBlank(message = "Valor é obrigatório")
-    @Min(value = 1, message = "Valor não pode ser negativo ou zero")
+
+    @NotNull(message = "Valor é obrigatório")
+    @Min(value = 1, message = "Valor deve ser maior que zero")
     private Double value;
-    
+
+    @NotNull(message = "Tipo de transação é obrigatório")
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Tipo de transação é obrigatório")
     private TransactionType type;
-    
+
+    @NotNull(message = "Categoria é obrigatória")
     @ManyToOne
     @JoinColumn(name = "id_category")
     private Category category;
+
     @ManyToOne
     @JoinColumn(name = "id_account")
     private Account account;
+
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
-
 }
