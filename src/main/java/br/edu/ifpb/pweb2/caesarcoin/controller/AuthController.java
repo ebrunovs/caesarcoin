@@ -38,35 +38,9 @@ public class AuthController {
 
     @PostMapping
     public ModelAndView validate(@Valid AccountOwner accOwner, BindingResult result, HttpSession session, ModelAndView model, RedirectAttributes attr) {
-        try {
-
-            if (result.hasErrors()) {
-                model.addObject("user", accOwner);
-                model.addObject(BindingResult.MODEL_KEY_PREFIX + "user", result);
-                model.setViewName("auth/login");
-                return model;
-            }
-            
-            if (accOwner.getEmail() == null || accOwner.getEmail().trim().isEmpty()) {
-                throw new InvalidDataException("Email é obrigatório");
-            }
-            if (accOwner.getPassword() == null || accOwner.getPassword().trim().isEmpty()) {
-                throw new InvalidDataException("Senha é obrigatória");
-            }
-            
-            AccountOwner authenticatedUser = this.isValid(accOwner);
-            if (authenticatedUser != null) {
-                session.setAttribute("user", authenticatedUser);
-                model.setViewName("redirect:/home");
-            } else {
-                throw new AccountownerNotFoundException("Login e/ou senha inválidos!");
-            }
-        } catch (Exception e) {
-            if (e instanceof InvalidDataException || e instanceof AccountownerNotFoundException) {
-                throw e;
-            }
-            throw new BusinessException("Erro durante o processo de autenticação", e);
-        }
+        // Este método não é mais necessário com Spring Security
+        // O Spring Security gerencia a autenticação automaticamente
+        model.setViewName("redirect:/home");
         return model;
     }
 
@@ -83,29 +57,9 @@ public class AuthController {
     }
 
     private AccountOwner isValid(AccountOwner accOwner) {
-        try {
-            AccountOwner accOwnerBD = accOwnerRepo.findByEmail(accOwner.getEmail());
-            boolean valid = false;
-            
-            if (accOwnerBD != null) {
-                if (!accOwnerBD.isEnabled()) {
-                    throw new InvalidDataException("Usuário bloqueado!");
-                }
-                
-                if (PasswordUtil.checkPass(accOwner.getPassword(), accOwnerBD.getPassword())) {
-                    valid = true;
-                }
-            }
-            return valid ? accOwnerBD : null;
-        } catch (Exception e) {
-            throw new BusinessException("Erro na validação de credenciais", e);
-        }
-        // if (logout != null) {
-        //     model.addObject("message", "Logout realizado com sucesso");
-        //     model.addObject("messageType", "success");
-        // }
-        
-        // return model;
+        // Este método não é mais necessário com Spring Security
+        // A autenticação é gerenciada pelo CustomUserDetailsService
+        return null;
     }
 
     @GetMapping("/access-denied")
@@ -113,5 +67,41 @@ public class AuthController {
         mav.setViewName("auth/accessDenied");
         mav.addObject("message", "Acesso negado");
         return mav;
+    }
+
+    // Tratamentos de exceção locais
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {
+        resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND);
+        ModelAndView model = new ModelAndView("/error");
+        model.addObject("message", ex.getMessage());
+        model.addObject("exception", ex);
+        model.addObject("path", req.getRequestURI());
+        model.addObject("status", resp.getStatus());
+        return model;
+    }
+
+    @ExceptionHandler(InvalidDataException.class)
+    public ModelAndView handleInvalidDataException(InvalidDataException ex, HttpServletRequest req,jakarta.servlet.http.HttpServletResponse resp) {       
+        resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST);
+        ModelAndView model = new ModelAndView("/error");
+        model.addObject("message", ex.getMessage());
+        model.addObject("exception", ex);
+        model.addObject("path", req.getRequestURI());
+        model.addObject("status", resp.getStatus());
+        return model;
+    }
+
+
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ModelAndView handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {
+        resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        ModelAndView model = new ModelAndView("/error");
+        model.addObject("message", ex.getMessage());
+        model.addObject("exception", ex);
+        model.addObject("path", req.getRequestURI());
+        model.addObject("status", resp.getStatus());
+        return model;
     }
 }

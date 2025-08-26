@@ -14,11 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
-import br.edu.ifpb.pweb2.caesarcoin.model.User;
 import br.edu.ifpb.pweb2.caesarcoin.model.Authority;
+import br.edu.ifpb.pweb2.caesarcoin.model.User;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
-import br.edu.ifpb.pweb2.caesarcoin.repository.UserRepository;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AuthorityRepository;
+import br.edu.ifpb.pweb2.caesarcoin.repository.UserRepository;
 import br.edu.ifpb.pweb2.caesarcoin.service.CustomUserDetailsService;
 
 @Configuration
@@ -35,7 +35,9 @@ public class CaesarcoinSecurityConfig {
     private AuthorityRepository authorityRepository;
     
     @Autowired
-    private CustomUserDetailsService customUserDetailsService;    @Bean
+    private CustomUserDetailsService customUserDetailsService;
+    
+    @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
@@ -103,6 +105,7 @@ public class CaesarcoinSecurityConfig {
                 User user = new User();
                 user.setUsername(email);
                 user.setEmail(email);
+                user.setName(name);
                 user.setPassword(passwordEncoder().encode(password));
                 user.setEnabled(true);
                 user = userRepository.save(user);
@@ -130,13 +133,9 @@ public class CaesarcoinSecurityConfig {
     
     private void createAccountOwnerIfNotExists(String email, String name, boolean isAdmin, User user) {
         try {
-            if (accountOwnerRepository.findByEmail(email) == null) {
+            // Verificar se já existe um AccountOwner com este User
+            if (accountOwnerRepository.findByUser(user) == null) {
                 AccountOwner owner = new AccountOwner();
-                owner.setEmail(email);
-                owner.setName(name);
-                owner.setPassword(user.getPassword());
-                owner.setAdmin(isAdmin);
-                owner.setEnabled(true);
                 owner.setUser(user);
                 accountOwnerRepository.save(owner);
             }

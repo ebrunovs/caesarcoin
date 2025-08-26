@@ -15,7 +15,7 @@
                 </div>
                 <div>
                     <span class="font-medium text-gray-600">Correntista:</span>
-                    <span class="text-gray-900 ml-2" th:text="${account.accountOwner.name}"></span>
+                    <span class="text-gray-900 ml-2" th:text="${account.accountOwner.user?.name ?: 'N/A'}"></span>
                 </div>
                 <div th:if="${account.type == 'CARTAO'}">
                     <span class="font-medium text-gray-600">Data de Fechamento:</span>

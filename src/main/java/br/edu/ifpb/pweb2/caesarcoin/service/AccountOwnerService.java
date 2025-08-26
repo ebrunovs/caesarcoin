@@ -9,8 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
-import br.edu.ifpb.pweb2.caesarcoin.model.User;
 import br.edu.ifpb.pweb2.caesarcoin.model.Authority;
+import br.edu.ifpb.pweb2.caesarcoin.model.User;
+import br.edu.ifpb.pweb2.caesarcoin.dto.AccountOwnerDTO;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
 import br.edu.ifpb.pweb2.caesarcoin.repository.UserRepository;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AuthorityRepository;
@@ -21,12 +22,12 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
 
     @Autowired
     private AccountOwnerRepository accOwnerRepo;
-
-    @Autowired
-    private UserRepository userRepo;
     
     @Autowired
-    private AuthorityRepository authorityRepo;
+    private UserRepository userRepository;
+    
+    @Autowired
+    private AuthorityRepository authorityRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -53,62 +54,8 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
     @Override
     public AccountOwner save(AccountOwner accOwner) {
         try {
-            // Validação de confirmação de senha apenas para novos registros ou quando a senha foi alterada
-            if (accOwner.getNewPassword() != null && !accOwner.getNewPassword().isEmpty()) {
-                if (accOwner.getConfirmPassword() == null || !accOwner.getNewPassword().equals(accOwner.getConfirmPassword())) {
-                    throw new RuntimeException("As senhas não coincidem");
-                }
-                
-                // Verificar se já existe um usuário com este email
-                User existingUser = userRepo.findById(accOwner.getEmail()).orElse(null);
-                
-                User user;
-                if (existingUser != null) {
-                    // Atualizar usuário existente
-                    user = existingUser;
-                    user.setPassword(passwordEncoder.encode(accOwner.getNewPassword()));
-                    user.setEnabled(accOwner.isEnabled());
-                } else {
-                    // Criar novo usuário
-                    user = new User();
-                    user.setUsername(accOwner.getEmail());
-                    user.setEmail(accOwner.getEmail());
-                    user.setPassword(passwordEncoder.encode(accOwner.getNewPassword()));
-                    user.setEnabled(accOwner.isEnabled());
-                }
-                
-                user = userRepo.save(user);
-                
-                // Criar authorities apenas para novos usuários
-                if (existingUser == null) {
-                    String[] roles = accOwner.isAdmin() ? new String[]{"ROLE_USER", "ROLE_ADMIN"} : new String[]{"ROLE_USER"};
-                    
-                    for (String role : roles) {
-                        Authority authority = new Authority();
-                        Authority.AuthorityId authorityId = new Authority.AuthorityId();
-                        authorityId.setUsername(user.getUsername());
-                        authorityId.setAuthority(role);
-                        authority.setId(authorityId);
-                        authority.setUsername(user);
-                        authority.setAuthority(role);
-                        authorityRepo.save(authority);
-                    }
-                }
-                
-                // Sincronizar dados
-                accOwner.setUser(user);
-                
-                // Limpar campos temporários
-                accOwner.setNewPassword(null);
-                accOwner.setConfirmPassword(null);
-            } else if (accOwner.getUser() != null && accOwner.getUser().getUsername() != null) {
-                // Caso de edição sem mudança de senha - manter lógica existente
-                User user = userRepo.findById(accOwner.getUser().getUsername()).orElse(null);
-                if (user != null) {
-                    accOwner.setUser(user);
-                }
-            }
-            
+            // Apenas salvar o AccountOwner já que não tem mais campos próprios para validar
+            // O User deve ser salvo separadamente
             return accOwnerRepo.save(accOwner);
         } catch (Exception e) {
             System.out.println("Erro detalhado: " + e.getMessage());
@@ -117,8 +64,100 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
         }
     }
 
-    public AccountOwner findByEmail(String email) {
-        return accOwnerRepo.findByEmail(email);
+    public AccountOwner findByUserUsername(String username) {
+        return accOwnerRepo.findByUserUsername(username);
+    }
+    
+    public AccountOwner saveFromDTO(AccountOwnerDTO dto) {
+        try {
+            User user;
+            AccountOwner accountOwner;
+            
+            if (dto.getId() != null) {
+                // Edição - buscar o AccountOwner existente
+                accountOwner = findById(dto.getId());
+                if (accountOwner == null) {
+                    throw new RuntimeException("Correntista não encontrado");
+                }
+                user = accountOwner.getUser();
+                if (user == null) {
+                    throw new RuntimeException("Usuário associado não encontrado");
+                }
+            } else {
+                // Criação - criar novo User e AccountOwner
+                user = new User();
+                accountOwner = new AccountOwner();
+            }
+            
+            // Atualizar dados do User
+            user.setName(dto.getName());
+            user.setEmail(dto.getEmail());
+            user.setUsername(dto.getEmail()); // usar email como username
+            user.setEnabled(dto.getEnabled());
+            
+            // Atualizar senha apenas se fornecida
+            if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(dto.getPassword()));
+            }
+            
+            // Salvar User
+            user = userRepository.save(user);
+            
+            // Configurar relacionamento
+            accountOwner.setUser(user);
+            
+            // Salvar AccountOwner
+            accountOwner = accOwnerRepo.save(accountOwner);
+            
+            // Gerenciar authorities apenas para novos usuários ou quando mudança de admin
+            if (dto.getId() == null || shouldUpdateAuthorities(user.getUsername(), dto.getAdmin())) {
+                updateAuthorities(user.getUsername(), dto.getAdmin());
+            }
+            
+            return accountOwner;
+        } catch (Exception e) {
+            System.out.println("Erro detalhado: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao salvar correntista: " + e.getMessage(), e);
+        }
+    }
+    
+    private boolean shouldUpdateAuthorities(String username, Boolean isAdmin) {
+        List<Authority> authorities = authorityRepository.findByUsernameUsername(username);
+        boolean currentlyAdmin = authorities.stream()
+            .anyMatch(auth -> "ROLE_ADMIN".equals(auth.getAuthority()));
+        return currentlyAdmin != (isAdmin != null && isAdmin);
+    }
+    
+    private void updateAuthorities(String username, Boolean isAdmin) {
+        User user = userRepository.findById(username).orElse(null);
+        if (user == null) return;
+        
+        // Remover authorities existentes
+        List<Authority> existingAuthorities = authorityRepository.findByUsernameUsername(username);
+        authorityRepository.deleteAll(existingAuthorities);
+        
+        // Adicionar ROLE_USER sempre
+        Authority userAuth = new Authority();
+        Authority.AuthorityId userId = new Authority.AuthorityId();
+        userId.setUsername(username);
+        userId.setAuthority("ROLE_USER");
+        userAuth.setId(userId);
+        userAuth.setUsername(user);
+        userAuth.setAuthority("ROLE_USER");
+        authorityRepository.save(userAuth);
+        
+        // Adicionar ROLE_ADMIN se necessário
+        if (isAdmin != null && isAdmin) {
+            Authority adminAuth = new Authority();
+            Authority.AuthorityId adminId = new Authority.AuthorityId();
+            adminId.setUsername(username);
+            adminId.setAuthority("ROLE_ADMIN");
+            adminAuth.setId(adminId);
+            adminAuth.setUsername(user);
+            adminAuth.setAuthority("ROLE_ADMIN");
+            authorityRepository.save(adminAuth);
+        }
     }
 
 }

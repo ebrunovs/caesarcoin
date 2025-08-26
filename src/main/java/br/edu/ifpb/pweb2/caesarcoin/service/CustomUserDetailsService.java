@@ -41,8 +41,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         // Buscar o correntista associado
-        AccountOwner accountOwner = accountOwnerRepository.findByEmail(username);
-        if (accountOwner != null && !accountOwner.isEnabled()) {
+        AccountOwner accountOwner = accountOwnerRepository.findByUserUsername(username);
+        if (accountOwner != null && !user.getEnabled()) {
             throw new UsernameNotFoundException("Correntista bloqueado: " + username);
         }
 

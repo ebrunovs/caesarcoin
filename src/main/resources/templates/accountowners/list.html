@@ -36,14 +36,14 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <a th:href="@{/accountowners/{id}(id=${accountowner.id})}"
                                 class="text-orange-600 hover:text-orange-800 font-medium"
-                                th:text="${accountowner.name}"></a>
+                                th:text="${accountowner.user?.name ?: 'N/A'}"></a>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${accountowner.email}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${accountowner.user?.email ?: 'N/A'}">
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span th:if="${accountowner.admin}"
+                            <span th:if="${#lists.contains(accountowner.user?.authorities, 'ROLE_ADMIN')}"
                                 class="bg-green-100 text-green-800 px-2 py-1 text-xs font-semibold rounded-full">Admin</span>
-                            <span th:unless="${accountowner.admin}"
+                            <span th:unless="${#lists.contains(accountowner.user?.authorities, 'ROLE_ADMIN')}"
                                 class="bg-gray-100 text-gray-800 px-2 py-1 text-xs font-semibold rounded-full">Usuário</span>
                         </td>
                        <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -57,13 +57,13 @@
                                     <i class="fas fa-trash"></i>
                                 </a>
 
-                                <span th:if="${accountowner.enabled}">
+                                <span th:if="${accountowner.user?.enabled}">
                                     <a th:href="@{accountowners/{id}/block(id=${accountowner.id})}" title="Bloquear"
                                         class="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-50 transition-colors">
                                         <i class="fas fa-lock  fa-fw"></i>
                                     </a>
                                 </span>
-                                <span th:unless="${accountowner.enabled}">
+                                <span th:unless="${accountowner.user?.enabled}">
                                     <a th:href="@{accountowners/{id}/unlock(id=${accountowner.id})}" title="Desbloquear"
                                         class="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-50 transition-colors">
                                         <i class="fas fa-unlock fa-fw"></i>

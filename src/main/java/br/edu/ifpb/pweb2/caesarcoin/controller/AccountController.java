@@ -52,7 +52,7 @@ public class AccountController {
     private AccountOwner getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
-            return accOwnerService.findByEmail(auth.getName());
+            return accOwnerService.findByUserUsername(auth.getName());
         }
         return null;
     }

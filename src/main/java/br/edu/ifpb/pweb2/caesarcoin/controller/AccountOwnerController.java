@@ -20,6 +20,7 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
+import br.edu.ifpb.pweb2.caesarcoin.dto.AccountOwnerDTO;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
@@ -34,27 +35,35 @@ public class AccountOwnerController {
     private AccountOwnerService accOwnerService;
 
     @GetMapping("/form")
-    public ModelAndView getForm(AccountOwner accOwner, ModelAndView model){
-        model.addObject("accountowner", accOwner);
+    public ModelAndView getForm(AccountOwnerDTO accOwnerDTO, ModelAndView model){
+        model.addObject("accountowner", accOwnerDTO);
         model.addObject("menu", "accountowner");
         model.setViewName("accountowners/form");
         return model;
     }
 
     @PostMapping
-    public ModelAndView save(@Valid AccountOwner accOwner,BindingResult result, ModelAndView model, RedirectAttributes attr) {
+    public ModelAndView save(@Valid AccountOwnerDTO accOwnerDTO, BindingResult result, ModelAndView model, RedirectAttributes attr) {
         try {
+            // Validação customizada para senhas
+            if (!accOwnerDTO.getIsEdit() && (accOwnerDTO.getPassword() == null || accOwnerDTO.getPassword().trim().isEmpty())) {
+                result.rejectValue("password", "error.password", "Senha é obrigatória para novos usuários");
+            }
+            
+            if (accOwnerDTO.getPassword() != null && !accOwnerDTO.getPassword().equals(accOwnerDTO.getConfirmPassword())) {
+                result.rejectValue("confirmPassword", "error.confirmPassword", "Senhas não conferem");
+            }
 
             if (result.hasErrors()) {         
-                model.addObject("accountowner", accOwner);    
+                model.addObject("accountowner", accOwnerDTO);    
                 model.addObject(BindingResult.MODEL_KEY_PREFIX + "accountowner", result);
                 model.addObject("menu", "accountowner");
                 model.setViewName("accountowners/form");
                 return model;
             }
 
-            boolean isNew = (accOwner.getId() == null);
-            accOwnerService.save(accOwner);
+            boolean isNew = (accOwnerDTO.getId() == null);
+            accOwnerService.saveFromDTO(accOwnerDTO);
             if (!isNew) {
                 attr.addFlashAttribute("message", "Correntista atualizado com sucesso!");
             } else {
@@ -104,9 +113,23 @@ public class AccountOwnerController {
                 throw new ResourceNotFoundException("Correntista não encontrado com ID: " + id);
             }
             
+            // Converter para DTO
+            AccountOwnerDTO dto = new AccountOwnerDTO();
+            dto.setId(accOwner.getId());
+            if (accOwner.getUser() != null) {
+                dto.setName(accOwner.getUser().getName());
+                dto.setEmail(accOwner.getUser().getEmail());
+                dto.setEnabled(accOwner.getUser().getEnabled());
+                // Verificar se é admin
+                dto.setAdmin(accOwner.getUser().getAuthorities() != null &&
+                    accOwner.getUser().getAuthorities().stream()
+                        .anyMatch(auth -> "ROLE_ADMIN".equals(auth.getAuthority())));
+            }
+            dto.setIsEdit(true); // Indicar que é edição
+            
             model.addObject("menu", "accountowner");
             model.setViewName("accountowners/form");
-            model.addObject("accountowner", accOwner);
+            model.addObject("accountowner", dto);
         } catch (Exception e) {
             if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {
                 throw e;
@@ -123,8 +146,10 @@ public class AccountOwnerController {
             if (accOwnerBlock == null) {
                 throw new ResourceNotFoundException("Correntista não encontrado");
             }
-            accOwnerBlock.setEnabled(false);
-            accOwnerService.save(accOwnerBlock); 
+            if (accOwnerBlock.getUser() != null) {
+                accOwnerBlock.getUser().setEnabled(false);
+                accOwnerService.save(accOwnerBlock);
+            }
             
             attr.addFlashAttribute("message", "Correntista bloqueado com sucesso!");
             mav.setViewName("redirect:/accountowners");
@@ -141,8 +166,10 @@ public class AccountOwnerController {
             if (accOwnerBlock == null) {
                 throw new ResourceNotFoundException("Correntista não encontrado");
             }
-            accOwnerBlock.setEnabled(true);
-            accOwnerService.save(accOwnerBlock); 
+            if (accOwnerBlock.getUser() != null) {
+                accOwnerBlock.getUser().setEnabled(true);
+                accOwnerService.save(accOwnerBlock);
+            }
             
             attr.addFlashAttribute("message", "Correntista desbloqueado com sucesso!");
             mav.setViewName("redirect:/accountowners");
