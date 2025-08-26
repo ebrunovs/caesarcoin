@@ -43,6 +43,15 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
 
     @Override
     public AccountOwner save(AccountOwner accOwner) {
+        // Se um usuário foi selecionado, estabelecer a relação corretamente
+        if (accOwner.getUser() != null && accOwner.getUser().getUsername() != null) {
+            User user = userRepo.findById(accOwner.getUser().getUsername()).orElse(null);
+            if (user != null) {
+                accOwner.setUser(user);
+                // Sincronizar a senha do usuário com o campo password do AccountOwner
+                accOwner.setPassword(user.getPassword());
+            }
+        }
         return accOwnerRepo.save(accOwner);
     }
 

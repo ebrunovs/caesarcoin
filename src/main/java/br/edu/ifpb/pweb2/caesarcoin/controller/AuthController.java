@@ -107,4 +107,11 @@ public class AuthController {
         
         // return model;
     }
+
+    @GetMapping("/access-denied")
+    public ModelAndView accessDenied(ModelAndView mav) {
+        mav.setViewName("auth/accessDenied");
+        mav.addObject("message", "Acesso negado");
+        return mav;
+    }
 }

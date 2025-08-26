@@ -74,7 +74,8 @@
                     </a>
                 </li>
                 
-                <li class="mb-0.5" th:classappend="${menu == 'category'} ? 'bg-orange-500 border-l-4 border-orange-400'">
+                <li class="mb-0.5" th:classappend="${menu == 'category'} ? 'bg-orange-500 border-l-4 border-orange-400'"
+                sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{/categories}" class="flex items-center px-5 py-3 text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white transition-all duration-300 text-sm font-medium">
                         <i class="fas fa-tags mr-3 w-4 text-center text-base"></i>
                         <span>Categorias</span>

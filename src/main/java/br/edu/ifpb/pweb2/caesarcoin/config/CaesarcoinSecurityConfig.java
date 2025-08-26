@@ -37,6 +37,7 @@ public class CaesarcoinSecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/images/**", "/auth/**").permitAll()
                 .requestMatchers("/accountowners/**").hasRole("ADMIN")
+                .requestMatchers("/categories/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .formLogin(form -> form
                 .loginPage("/auth")
@@ -48,7 +49,9 @@ public class CaesarcoinSecurityConfig {
                 .logoutUrl("/auth/logout")
                 .logoutSuccessUrl("/auth?logout")
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID"));
+                .deleteCookies("JSESSIONID"))
+            .exceptionHandling(ex -> ex
+                .accessDeniedPage("/auth/access-denied"));
         return http.build();
     }
 
@@ -81,7 +84,7 @@ public class CaesarcoinSecurityConfig {
             
         UserDetails caesar = User.withUsername("caesar@rome.com")
             .password(passwordEncoder().encode("veni123"))
-            .roles("USER", "ADMIN")
+            .roles("USER")
             .build();
 
         // Evita duplicação dos usuários no banco
@@ -98,7 +101,7 @@ public class CaesarcoinSecurityConfig {
         // Cria AccountOwners correspondentes se não existirem (nomes válidos)
         createAccountOwnerIfNotExists("admin@caesarcoin.com", "Admin Sistema", true);
         createAccountOwnerIfNotExists("demo@caesarcoin.com", "Usuario Demo", false);
-        createAccountOwnerIfNotExists("caesar@rome.com", "Julius Caesar", true);
+        createAccountOwnerIfNotExists("caesar@rome.com", "Julius Caesar", false);
     }
     
     private void createAccountOwnerIfNotExists(String email, String name, boolean isAdmin) {

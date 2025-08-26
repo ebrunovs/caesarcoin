@@ -51,7 +51,8 @@ public class AccountOwnerController {
 
             if (result.hasErrors()) {         
                 model.addObject("accountowner", accOwner);    
-                model.addObject(BindingResult.MODEL_KEY_PREFIX + "accountowner", result);   
+                model.addObject(BindingResult.MODEL_KEY_PREFIX + "accountowner", result);
+                model.addObject("menu", "accountowner");
                 model.setViewName("accountowners/form");
                 return model;
             }
@@ -63,12 +64,8 @@ public class AccountOwnerController {
             } else {
                 attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
             }
-            if (!isNew) {
-                attr.addFlashAttribute("message", "Correntista atualizado com sucesso!");
-            } else {
-                attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
-            }
-            model.setViewName("redirect:accountowners");
+            
+            model.setViewName("redirect:/accountowners");
         
         } catch (Exception e) {
             if (e instanceof InvalidDataException) {

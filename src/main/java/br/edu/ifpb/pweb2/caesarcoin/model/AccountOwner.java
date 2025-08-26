@@ -5,7 +5,6 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +25,8 @@ public class AccountOwner implements Serializable {
     @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Nome deve conter apenas letras e espaços")
     private String name;
 
-    @NotBlank(message = "Senha é obrigatória")
+    // Removendo @NotBlank do password pois ele não é preenchido diretamente no formulário
+    // A senha vem através da relação com User
     private String password;
 
     @Email(message = "Email deve ser válido")
