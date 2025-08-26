@@ -76,12 +76,16 @@ th:replace="~{layout/base :: html(pageTitle='CaesarCoin - Cadastro de Correntist
             const typeSelect = document.getElementById('typeSelect');
             const dateField = document.getElementById('dateField');
             const dueDateInput = document.getElementById('dueDateInput');
+            const dueDateInput = document.getElementById('dueDateInput');
             
             if (typeSelect.value === 'CARTAO') {
                 dateField.classList.remove('hidden');
                 dueDateInput.setAttribute('required', 'required');
+                dueDateInput.setAttribute('required', 'required');
             } else {
                 dateField.classList.add('hidden');
+                dueDateInput.removeAttribute('required');
+                dueDateInput.value = ''; // Limpa o valor quando oculto
                 dueDateInput.removeAttribute('required');
                 dueDateInput.value = ''; // Limpa o valor quando oculto
             }

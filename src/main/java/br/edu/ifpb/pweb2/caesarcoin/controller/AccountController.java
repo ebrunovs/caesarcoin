@@ -1,5 +1,6 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
+import java.time.Year;
 import java.util.List;
 
 import javax.naming.Binding;
@@ -7,10 +8,10 @@ import javax.naming.Binding;
 import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
-import br.edu.ifpb.pweb2.caesarcoin.model.Category;
-import br.edu.ifpb.pweb2.caesarcoin.model.Transaction;
+import br.edu.ifpb.pweb2.caesarcoin.model.*;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import br.edu.ifpb.pweb2.caesarcoin.util.CategoryColorHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -23,8 +24,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import br.edu.ifpb.pweb2.caesarcoin.model.Account;
-import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountService;
 
@@ -103,6 +102,13 @@ public class AccountController {
                     throw new ResourceNotFoundException("Transação não encontrada");
                 }
                 updateExistingTransaction(existing, transaction);
+                
+                Account existingAccount = existing.getAccount();
+                existing.setValue(transaction.getValue());
+                existing.setDescription(transaction.getDescription());
+                existing.setDate(transaction.getDate());
+                existing.setType(transaction.getType());
+                existing.setCategory(catService.findById(transaction.getCategory().getId()));
                 transactionService.save(existing);
                 attr.addFlashAttribute("message", "Transação atualizada com sucesso!");
             } else {
@@ -231,9 +237,15 @@ public class AccountController {
             if (user != null) {
                 account.setAccountOwner(user);
             }
-            
+
+            boolean isNew = (account.getId() == null);
+
             accService.save(account);
-            attr.addFlashAttribute("message","Conta inserida com sucesso");
+            if (!isNew) {
+                attr.addFlashAttribute("message", "Conta atualizada com sucesso!");
+            } else {
+                attr.addFlashAttribute("message", "Conta inserida com sucesso!");
+            }
             model.setViewName("redirect:/accounts");
         } catch (Exception e) {
             if (e instanceof InvalidDataException) {
@@ -280,19 +292,16 @@ public class AccountController {
     }
 
 
-    @DeleteMapping("/{id}/delete")
+    @RequestMapping("/{id}/delete")
     public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
         accService.deleteById(id);
-        attr.addFlashAttribute("mensagem", "Conta removida com sucesso!");
+        attr.addFlashAttribute("message", "Conta removida com sucesso!");
         mav.setViewName("redirect:/accounts");
         return mav;
     }
 
-
-        
-
-    @GetMapping("/transaction/{id}/delete")
+    @RequestMapping("/transaction/{id}/delete")
     public ModelAndView deleteTransactionById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
         Transaction transaction = transactionService.findById(id);
@@ -301,6 +310,196 @@ public class AccountController {
         String redirect = "redirect:/accounts/ " + transaction.getAccount().getId() + " /transactions";
         mav.setViewName(redirect);
         return mav;
+    }
+
+    @GetMapping("/{id}/extract")
+    public ModelAndView getAccountExtract(@PathVariable(value = "id") Integer id,
+                                        @RequestParam(value = "startDate", required = false) String startDateStr,
+                                        @RequestParam(value = "endDate", required = false) String endDateStr,
+                                        ModelAndView mav) {
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada");
+            }
+
+            ExtractData extractData = transactionService.generateExtractWithDefaultDates(account, startDateStr, endDateStr);
+
+            mav.addObject("account", account);
+            mav.addObject("transactions", extractData.getTransactions());
+            mav.addObject("startDate", extractData.getStartDate().toString());
+            mav.addObject("endDate", extractData.getEndDate().toString());
+            mav.addObject("totalEntradas", extractData.getTotalIncomes());
+            mav.addObject("totalSaidas", extractData.getTotalOutcomes());
+            mav.addObject("totalInvestimentos", extractData.getTotalInvestments());
+            mav.addObject("saldoPeriodo", extractData.getPeriodBalance());
+            mav.setViewName("accounts/extract");
+            
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao gerar extrato da conta", e);
+        }
+        return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget")
+    public ModelAndView getAnnualBudget(@PathVariable("id") Integer id,
+                                        @RequestParam(value = "year", required = false) Integer year,
+                                        ModelAndView mav) {
+        try {
+            if (id == null || id <= 0) {
+                throw new InvalidDataException("ID da conta inválido");
+            }
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada");
+            }
+            int selectedYear = (year == null) ? Year.now().getValue() : year;
+            List<AnnualCategoryBudget> rows = transactionService.generateAnnualBudget(account, selectedYear);
+
+            List<AnnualCategoryBudget> incomes = rows.stream().filter(r -> r.getCategory().getKind() == TransactionType.ENTRADA).collect(Collectors.toList());
+            List<AnnualCategoryBudget> outcomes = rows.stream().filter(r -> r.getCategory().getKind() == TransactionType.SAIDA).collect(Collectors.toList());
+            List<AnnualCategoryBudget> investments = rows.stream().filter(r -> r.getCategory().getKind() == TransactionType.INVESTIMENTO).collect(Collectors.toList());
+
+            // Totais mensais e anuais por natureza para facilitar exibição
+            double[] incomeMonths = sumMonths(incomes);
+            double[] outcomeMonths = sumMonths(outcomes);
+            double[] investmentMonths = sumMonths(investments);
+            double incomeAnnual = sumArray(incomeMonths);
+            double outcomeAnnual = sumArray(outcomeMonths);
+            double investmentAnnual = sumArray(investmentMonths);
+            double[] netMonths = new double[12];
+            for (int i = 0; i < 12; i++) {
+                netMonths[i] = incomeMonths[i] - outcomeMonths[i];
+            }
+            double netAnnual = incomeAnnual - outcomeAnnual;
+
+            mav.addObject("account", account);
+            mav.addObject("year", selectedYear);
+            mav.addObject("incomes", incomes);
+            mav.addObject("outcomes", outcomes);
+            mav.addObject("investments", investments);
+            mav.addObject("incomeMonths", incomeMonths);
+            mav.addObject("outcomeMonths", outcomeMonths);
+            mav.addObject("investmentMonths", investmentMonths);
+            mav.addObject("incomeAnnual", incomeAnnual);
+            mav.addObject("outcomeAnnual", outcomeAnnual);
+            mav.addObject("investmentAnnual", investmentAnnual);
+            mav.addObject("netMonths", netMonths);
+            mav.addObject("netAnnual", netAnnual);
+            mav.addObject("hasData", !rows.isEmpty());
+            mav.addObject("menu", "account");
+            mav.setViewName("accounts/annualBudget");
+        } catch (Exception e) {
+            if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new BusinessException("Erro ao gerar orçamento anual", e);
+        }
+        return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget/chart-view")
+    public ModelAndView getAnnualBudgetChartView(
+            @PathVariable("id") Integer id,
+            @RequestParam(value = "year", defaultValue = "0") int year,
+            ModelAndView mav) {
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada.");
+            }
+
+            int selectedYear = (year == 0) ? Year.now().getValue() : year;
+
+            // Buscar todas as categorias por tipo
+            List<Category> allIncomes = catService.findByTransactionType(TransactionType.ENTRADA);
+            List<Category> allOutcomes = catService.findByTransactionType(TransactionType.SAIDA);
+            List<Category> allInvestments = catService.findByTransactionType(TransactionType.INVESTIMENTO);
+
+            mav.addObject("account", account);
+            mav.addObject("year", selectedYear);
+            mav.addObject("allIncomes", allIncomes);
+            mav.addObject("allOutcomes", allOutcomes);
+            mav.addObject("allInvestments", allInvestments);
+            mav.setViewName("accounts/chart");
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao carregar a visualização do gráfico", e);
+        }
+        return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget/chart")
+    @ResponseBody
+    public ChartData getAnnualBudgetChartData(
+            @PathVariable("id") Integer id,
+            @RequestParam("year") int year,
+            @RequestParam(value = "incomes", required = false) List<Integer> incomeCategoryIds,
+            @RequestParam(value = "outcomes", required = false) List<Integer> outcomeCategoryIds,
+            @RequestParam(value = "investments", required = false) List<Integer> investmentCategoryIds) {
+
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada");
+            }
+
+            List<AnnualCategoryBudget> budget = transactionService.generateAnnualBudget(account, year);
+
+            List<String> labels = List.of("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez");
+
+            List<ChartDataset> datasets = new java.util.ArrayList<>();
+
+            if (incomeCategoryIds != null && !incomeCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, incomeCategoryIds, TransactionType.ENTRADA, "#10B981"));
+            }
+            if (outcomeCategoryIds != null && !outcomeCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, outcomeCategoryIds, TransactionType.SAIDA, "#EF4444"));
+            }
+            if (investmentCategoryIds != null && !investmentCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, investmentCategoryIds, TransactionType.INVESTIMENTO, "#3B82F6"));
+            }
+
+            return new ChartData(labels, datasets);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar dados do gráfico: " + e.getMessage(), e);
+        }
+    }
+
+    private List<ChartDataset> createDatasets(List<AnnualCategoryBudget> budget, List<Integer> categoryIds, TransactionType type, String baseColor) {
+        List<ChartDataset> result = new java.util.ArrayList<>();
+        
+        for (AnnualCategoryBudget b : budget) {
+            if (b.getCategory().getKind() == type && categoryIds.contains(b.getCategory().getId())) {
+                Category category = b.getCategory();
+                String borderColor = CategoryColorHelper.getColorForCategory(category);
+                String backgroundColor = CategoryColorHelper.getBackgroundColorForCategory(category);
+                
+                List<Double> data = new java.util.ArrayList<>();
+                for (double total : b.getMonthlyTotals()) {
+                    data.add(total);
+                }
+                result.add(new ChartDataset(category.getName(), data, borderColor, backgroundColor));
+            }
+        }
+        
+        return result;
+    }
+
+    private double[] sumMonths(List<AnnualCategoryBudget> list) {
+        double[] totals = new double[12];
+        for (AnnualCategoryBudget b : list) {
+            double[] mts = b.getMonthlyTotals();
+            for (int i = 0; i < 12; i++) {
+                totals[i] += mts[i];
+            }
+        }
+        return totals;
+    }
+
+    private double sumArray(double[] arr) {
+        double s = 0d;
+        for (double v : arr) s += v;
+        return s;
     }
 
 

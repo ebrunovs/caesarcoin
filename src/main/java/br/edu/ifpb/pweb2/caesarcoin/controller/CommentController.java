@@ -53,7 +53,7 @@ public class CommentController {
         return model;
     }
 
-    @PostMapping("/delete/{id}")
+    @RequestMapping("/delete/{id}")
     public ModelAndView delete(@PathVariable(value = "id") Integer id, RedirectAttributes attr) {
         try {
             if (id == null || id <= 0) {
