@@ -98,7 +98,7 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-between items-center">
+                <div class="flex justify-end items-center">
                     <div class="flex gap-3">
                         <button type="button" id="select-all-btn"
                                 class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
@@ -253,6 +253,7 @@
                 
                 // Selecionar categoria
                 dropdown.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evita que o clique se propague e feche o dropdown
                     if (e.target.classList.contains('category-option')) {
                         const value = e.target.dataset.value;
                         const text = e.target.textContent;
@@ -265,11 +266,14 @@
                         }
                     }
                 });
-                
-                // Fechar dropdown ao clicar fora
-                document.addEventListener('click', () => {
-                    dropdown.classList.add('hidden');
-                });
+            });
+            
+            // Event listener global para fechar dropdowns ao clicar fora
+            document.addEventListener('click', (e) => {
+                // Só fecha se o clique não foi em nenhum elemento do sistema de categorias
+                if (!e.target.closest('.category-selector')) {
+                    closeAllDropdowns();
+                }
             });
         }
         

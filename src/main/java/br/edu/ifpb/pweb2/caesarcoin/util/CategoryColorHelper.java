@@ -27,27 +27,27 @@ public class CategoryColorHelper {
     };
     
     static {
-        // Cores para categorias de ENTRADA
-        INCOME_COLORS.put("Salário", "#10B981");              // Verde forte
-        INCOME_COLORS.put("Cashback", "#059669");             // Verde médio
-        INCOME_COLORS.put("Resgate Investimento", "#047857");  // Verde escuro
-        INCOME_COLORS.put("Outras Entradas", "#34D399");      // Verde claro
+        // Cores para categorias de ENTRADA - Diferentes tonalidades de verde
+        INCOME_COLORS.put("Salário", "#22C55E");              // Verde vibrante
+        INCOME_COLORS.put("Cashback", "#16A34A");             // Verde médio escuro
+        INCOME_COLORS.put("Resgate Investimento", "#15803D");  // Verde escuro
+        INCOME_COLORS.put("Outras Entradas", "#4ADE80");      // Verde claro vibrante
         
-        // Cores para categorias de SAIDA
-        OUTCOME_COLORS.put("Saúde e Remédios", "#EF4444");      // Vermelho
-        OUTCOME_COLORS.put("Academia e Personal", "#F97316");    // Laranja
-        OUTCOME_COLORS.put("Carros e Uber", "#F59E0B");         // Amarelo
-        OUTCOME_COLORS.put("Educação e Cursos", "#8B5CF6");     // Roxo
-        OUTCOME_COLORS.put("Lazer e Turismo", "#EC4899");       // Rosa
-        OUTCOME_COLORS.put("Condomínio", "#6B7280");           // Cinza
-        OUTCOME_COLORS.put("Energia", "#FCD34D");              // Amarelo claro
-        OUTCOME_COLORS.put("Celular", "#60A5FA");              // Azul claro
-        OUTCOME_COLORS.put("Internet", "#34D399");             // Verde claro
-        OUTCOME_COLORS.put("Itens Pessoais", "#F472B6");       // Rosa claro
-        OUTCOME_COLORS.put("Feira", "#84CC16");                // Verde lima
-        OUTCOME_COLORS.put("Casa", "#A78BFA");                 // Roxo claro
-        OUTCOME_COLORS.put("Impostos", "#DC2626");             // Vermelho escuro
-        OUTCOME_COLORS.put("Outros gastos", "#6B7280");        // Cinza
+        // Cores para categorias de SAIDA - Tons de vermelho, laranja e amarelo
+        OUTCOME_COLORS.put("Saúde e Remédios", "#DC2626");      // Vermelho escuro
+        OUTCOME_COLORS.put("Academia e Personal", "#EF4444");    // Vermelho médio
+        OUTCOME_COLORS.put("Carros e Uber", "#F87171");         // Vermelho claro
+        OUTCOME_COLORS.put("Educação e Cursos", "#EA580C");     // Laranja escuro
+        OUTCOME_COLORS.put("Lazer e Turismo", "#F97316");       // Laranja médio
+        OUTCOME_COLORS.put("Condomínio", "#FB923C");           // Laranja claro
+        OUTCOME_COLORS.put("Energia", "#D97706");              // Amarelo escuro/laranja
+        OUTCOME_COLORS.put("Celular", "#F59E0B");              // Amarelo médio
+        OUTCOME_COLORS.put("Internet", "#FBBF24");             // Amarelo claro
+        OUTCOME_COLORS.put("Itens Pessoais", "#FCD34D");       // Amarelo muito claro
+        OUTCOME_COLORS.put("Feira", "#FDE047");                // Amarelo limão
+        OUTCOME_COLORS.put("Casa", "#FACC15");                 // Amarelo ouro
+        OUTCOME_COLORS.put("Impostos", "#B91C1C");             // Vermelho muito escuro
+        OUTCOME_COLORS.put("Outros gastos", "#F87171");        // Vermelho claro
         
         // Cores para categorias de INVESTIMENTO
         INVESTMENT_COLORS.put("Aporte Renda Fixa", "#3B82F6");          // Azul
