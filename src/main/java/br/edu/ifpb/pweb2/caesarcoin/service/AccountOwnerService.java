@@ -6,14 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
+import br.edu.ifpb.pweb2.caesarcoin.model.User;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
-import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
+import br.edu.ifpb.pweb2.caesarcoin.repository.UserRepository;
+// import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
 
 @Component
 public class AccountOwnerService implements Service<AccountOwner, Integer>{
 
     @Autowired
     private AccountOwnerRepository accOwnerRepo;
+
+    @Autowired
+    private UserRepository userRepo;
 
     @Override
     public List<AccountOwner> findAll(){
@@ -30,8 +35,11 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
 
     @Override
     public AccountOwner save(AccountOwner accOwner) {
-        accOwner.setPassword(PasswordUtil.hashPassword(accOwner.getPassword()));
         return accOwnerRepo.save(accOwner);
+    }
+
+    public List<User> findEnabledUsers() {
+        return userRepo.findByEnabledTrue();
     }
 
 }
