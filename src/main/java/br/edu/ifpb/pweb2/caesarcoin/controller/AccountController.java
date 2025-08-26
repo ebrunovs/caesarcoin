@@ -154,7 +154,7 @@ public class AccountController {
     @GetMapping(value = "/{id}/transactions")
     public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount,
                                              @RequestParam(defaultValue = "1") int page,
-                                             @RequestParam(defaultValue = "3") int size,
+                                             @RequestParam(defaultValue = "5") int size,
                                              ModelAndView mav) {
         try {
             if (idAccount == null || idAccount <= 0) {
@@ -220,7 +220,7 @@ public class AccountController {
     public ModelAndView listAll(ModelAndView model, 
     HttpSession session, 
     @RequestParam(defaultValue = "1") int page, 
-    @RequestParam(defaultValue = "3") int size
+    @RequestParam(defaultValue = "5") int size
     ){
         Pageable paging = PageRequest.of(page - 1, size);
         AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");

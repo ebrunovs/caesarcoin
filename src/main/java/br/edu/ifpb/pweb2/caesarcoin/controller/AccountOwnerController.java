@@ -73,7 +73,7 @@ public class AccountOwnerController {
     @GetMapping
     public ModelAndView listAll(ModelAndView model, 
         @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "3") int size
+        @RequestParam(defaultValue = "5") int size
     ){
         Pageable paging = PageRequest.of(page - 1, size);
         Page<AccountOwner> accOwners = accOwnerService.findAll(paging);
