@@ -1,36 +1,41 @@
 package br.edu.ifpb.pweb2.caesarcoin.config;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
+import br.edu.ifpb.pweb2.caesarcoin.model.User;
+import br.edu.ifpb.pweb2.caesarcoin.model.Authority;
 import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
+import br.edu.ifpb.pweb2.caesarcoin.repository.UserRepository;
+import br.edu.ifpb.pweb2.caesarcoin.repository.AuthorityRepository;
+import br.edu.ifpb.pweb2.caesarcoin.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 public class CaesarcoinSecurityConfig {
     
     @Autowired
-    private DataSource dataSource;
+    private AccountOwnerRepository accountOwnerRepository;
     
     @Autowired
-    private AccountOwnerRepository accountOwnerRepository;
-
-    @Bean
+    private UserRepository userRepository;
+    
+    @Autowired
+    private AuthorityRepository authorityRepository;
+    
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;    @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
@@ -62,61 +67,82 @@ public class CaesarcoinSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
-        
-        // Cria usuários padrão se não existirem
-        createDefaultUsersIfNotExists(users);
-        
-        return users;
+        return customUserDetailsService;
     }
 
-    private void createDefaultUsersIfNotExists(JdbcUserDetailsManager users) {
-        // Usuários padrão do sistema CaesarCoin
-        UserDetails admin = User.withUsername("admin@caesarcoin.com")
-            .password(passwordEncoder().encode("admin123"))
-            .roles("USER", "ADMIN")
-            .build();
-            
-        UserDetails demo = User.withUsername("demo@caesarcoin.com")
-            .password(passwordEncoder().encode("demo123"))
-            .roles("USER")
-            .build();
-            
-        UserDetails caesar = User.withUsername("caesar@rome.com")
-            .password(passwordEncoder().encode("veni123"))
-            .roles("USER")
-            .build();
+    @Bean
+    public CommandLineRunner dataLoader() {
+        return args -> {
+            try {
+                // Create default users after application context is fully loaded
+                createDefaultUsersIfNotExists();
+            } catch (Exception e) {
+                System.err.println("Erro ao criar usuários padrão: " + e.getMessage());
+                e.printStackTrace();
+            }
+        };
+    }
 
-        // Evita duplicação dos usuários no banco
-        if (!users.userExists(admin.getUsername())) {
-            users.createUser(admin);
+    private void createDefaultUsersIfNotExists() {
+        try {
+            // Criar usuários diretamente usando repository pattern para garantir consistência
+            createUserAndOwnerIfNotExists("admin@caesarcoin.com", "admin123", "Admin Sistema", true, new String[]{"ROLE_USER", "ROLE_ADMIN"});
+            createUserAndOwnerIfNotExists("demo@caesarcoin.com", "demo123", "Usuario Demo", false, new String[]{"ROLE_USER"});
+            createUserAndOwnerIfNotExists("caesar@rome.com", "veni123", "Julius Caesar", false, new String[]{"ROLE_USER"});
+        } catch (Exception e) {
+            System.err.println("Erro ao criar usuários padrão: " + e.getMessage());
+            e.printStackTrace();
         }
-        if (!users.userExists(demo.getUsername())) {
-            users.createUser(demo);
-        }
-        if (!users.userExists(caesar.getUsername())) {
-            users.createUser(caesar);
-        }
-        
-        // Cria AccountOwners correspondentes se não existirem (nomes válidos)
-        createAccountOwnerIfNotExists("admin@caesarcoin.com", "Admin Sistema", true);
-        createAccountOwnerIfNotExists("demo@caesarcoin.com", "Usuario Demo", false);
-        createAccountOwnerIfNotExists("caesar@rome.com", "Julius Caesar", false);
     }
     
-    private void createAccountOwnerIfNotExists(String email, String name, boolean isAdmin) {
+    private void createUserAndOwnerIfNotExists(String email, String password, String name, boolean isAdmin, String[] roles) {
+        try {
+            // Verificar se o usuário já existe
+            if (userRepository.findById(email).isEmpty()) {
+                // Criar User
+                User user = new User();
+                user.setUsername(email);
+                user.setEmail(email);
+                user.setPassword(passwordEncoder().encode(password));
+                user.setEnabled(true);
+                user = userRepository.save(user);
+                
+                // Criar authorities
+                for (String role : roles) {
+                    Authority authority = new Authority();
+                    Authority.AuthorityId authorityId = new Authority.AuthorityId();
+                    authorityId.setUsername(email);
+                    authorityId.setAuthority(role);
+                    authority.setId(authorityId);
+                    authority.setUsername(user);
+                    authority.setAuthority(role);
+                    authorityRepository.save(authority);
+                }
+                
+                // Criar AccountOwner correspondente
+                createAccountOwnerIfNotExists(email, name, isAdmin, user);
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao criar usuário " + email + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void createAccountOwnerIfNotExists(String email, String name, boolean isAdmin, User user) {
         try {
             if (accountOwnerRepository.findByEmail(email) == null) {
                 AccountOwner owner = new AccountOwner();
                 owner.setEmail(email);
-                owner.setName(name); // Nomes sem caracteres especiais
-                owner.setPassword(passwordEncoder().encode(email.split("@")[0] + "123"));
+                owner.setName(name);
+                owner.setPassword(user.getPassword());
                 owner.setAdmin(isAdmin);
+                owner.setEnabled(true);
+                owner.setUser(user);
                 accountOwnerRepository.save(owner);
             }
         } catch (Exception e) {
-            // Log do erro mas não interrompe a inicialização
             System.err.println("Erro ao criar AccountOwner para " + email + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
