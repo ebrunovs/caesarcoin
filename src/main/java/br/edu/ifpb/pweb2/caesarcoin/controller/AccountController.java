@@ -2,8 +2,7 @@ package br.edu.ifpb.pweb2.caesarcoin.controller;
 
 import java.time.Year;
 import java.util.List;
-
-import javax.naming.Binding;
+import java.util.stream.Collectors;
 
 import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
@@ -75,7 +74,7 @@ public class AccountController {
         return model;
     }
 
-    @PostMapping("/transaction")
+   @PostMapping("/transaction")
     public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, 
                                   @Valid Transaction transaction,
                                   BindingResult result,
@@ -102,13 +101,6 @@ public class AccountController {
                     throw new ResourceNotFoundException("Transação não encontrada");
                 }
                 updateExistingTransaction(existing, transaction);
-                
-                Account existingAccount = existing.getAccount();
-                existing.setValue(transaction.getValue());
-                existing.setDescription(transaction.getDescription());
-                existing.setDate(transaction.getDate());
-                existing.setType(transaction.getType());
-                existing.setCategory(catService.findById(transaction.getCategory().getId()));
                 transactionService.save(existing);
                 attr.addFlashAttribute("message", "Transação atualizada com sucesso!");
             } else {
@@ -133,15 +125,14 @@ public class AccountController {
         }
     }
 
-    private void updateExistingTransaction(Transaction existing, Transaction updated) {
+
+     private void updateExistingTransaction(Transaction existing, Transaction updated) {
         existing.setValue(updated.getValue());
         existing.setDescription(updated.getDescription());
         existing.setDate(updated.getDate());
         existing.setType(updated.getType());
         existing.setCategory(catService.findById(updated.getCategory().getId()));
     }
-
-
 
     @GetMapping(value = "/{id}/transactions")
     public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount, ModelAndView mav) {
@@ -223,7 +214,7 @@ public class AccountController {
     @PostMapping
     public ModelAndView save(@Valid Account account,BindingResult result, ModelAndView model, RedirectAttributes attr, HttpSession session) {
         try {
-
+            
             if (result.hasErrors()) {
                 AccountOwner user = (AccountOwner) session.getAttribute("user");
                 account.setAccountOwner(user);
@@ -232,7 +223,7 @@ public class AccountController {
                 model.setViewName("accounts/form");
                 return model;
             }
-            
+
             AccountOwner user = (AccountOwner) session.getAttribute("user");
             if (user != null) {
                 account.setAccountOwner(user);

@@ -24,6 +24,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+     @NotNull(message = "Data é obrigatória")
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate date;
 

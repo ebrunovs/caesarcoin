@@ -106,15 +106,6 @@ public class AccountOwnerController {
         return model;
     }
 
-    @GetMapping("/{id}/delete")
-    public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
-        ModelAndView mav, RedirectAttributes attr) {
-        accOwnerService.deleteById(id);
-        attr.addFlashAttribute("message", "Correntista removido com sucesso!");
-        mav.setViewName("redirect:/accountowners");
-        return mav;
-    }
-
     @GetMapping("/{id}/block")
     public ModelAndView blockById(@PathVariable(value = "id") Integer id, ModelAndView mav, RedirectAttributes attr) {
         try {
@@ -150,6 +141,16 @@ public class AccountOwnerController {
         }
         return mav;
     }
+
+    @GetMapping("/{id}/delete")
+    public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
+        ModelAndView mav, RedirectAttributes attr) {
+        accOwnerService.deleteById(id);
+        attr.addFlashAttribute("message", "Correntista removido com sucesso!");
+        mav.setViewName("redirect:/accountowners");
+        return mav;
+    }
+
 
     // Tratamentos de exceção locais
     @ExceptionHandler(ResourceNotFoundException.class)
