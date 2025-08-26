@@ -1,32 +1,38 @@
+
 <section th:fragment="paginator(resourcePath, navPage)">
   <nav aria-label="Paginador" th:if="${navPage.totalPages > 0}">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" th:classappend="${navPage.currentPage == 1} ? 'disabled'">
+    <ul class="flex justify-center items-center space-x-1 mt-4">
+      <li th:classappend="${navPage.currentPage == 1} ? 'opacity-50 pointer-events-none'">
         <a th:replace="fragments/paging :: page(1, ${navPage.pageSize}, '<<', 'Primeira', ${resourcePath})"></a>
       </li>
-      <li class="page-item font-weight-bold" th:classappend="${navPage.currentPage == 1} ? 'disabled'">
+      <li th:classappend="${navPage.currentPage == 1} ? 'opacity-50 pointer-events-none'">
         <a th:replace="fragments/paging :: page(${navPage.currentPage - 1}, ${navPage.pageSize}, 'Anterior', 'Página Anterior', ${resourcePath})"></a>
       </li>
-      <li class="page-item disabled" th:if="${navPage.currentPage - 2 > 1}">
-        <a class="page-link" href="#">...</a>
+      <li th:if="${navPage.currentPage - 2 > 1}">
+        <span class="px-2 py-1 text-gray-400">...</span>
       </li>
-      <li class="page-item" th:classappend="${page == currentPage} ? 'active'"
-          th:each="page : ${#numbers.sequence(navPage.currentPage > 2 ? navPage.currentPage - 2 : 1, navPage.currentPage + 2 < navPage.totalPages ? navPage.currentPage + 2 : navPage.totalPages)}">
+      <li th:each="page : ${#numbers.sequence(navPage.currentPage > 2 ? navPage.currentPage - 2 : 1, navPage.currentPage + 2 < navPage.totalPages ? navPage.currentPage + 2 : navPage.totalPages)}"
+          th:classappend="${page == navPage.currentPage} ? 'bg-orange-500 text-white rounded' : ''">
         <a th:replace="fragments/paging :: page(${page}, ${navPage.pageSize}, ${page}, 'Página ' + ${page}, ${resourcePath})"></a>
       </li>
-      <li class="page-item disabled" th:if="${navPage.currentPage + 2 < navPage.totalPages}">
-        <a class="page-link" href="#">...</a>
+      <li th:if="${navPage.currentPage + 2 < navPage.totalPages}">
+        <span class="px-2 py-1 text-gray-400">...</span>
       </li>
-      <li class="page-item font-weight-bold" th:classappend="${navPage.currentPage == navPage.totalPages} ? 'disabled'">
+      <li th:classappend="${navPage.currentPage == navPage.totalPages} ? 'opacity-50 pointer-events-none'">
         <a th:replace="fragments/paging :: page(${navPage.currentPage + 1}, ${navPage.pageSize}, 'Próxima', 'Próxima Página', ${resourcePath})"></a>
       </li>
-      <li class="page-item" th:classappend="${navPage.currentPage == navPage.totalPages} ? 'disabled'">
+      <li th:classappend="${navPage.currentPage == navPage.totalPages} ? 'opacity-50 pointer-events-none'">
         <a th:replace="fragments/paging :: page(${navPage.totalPages},  ${navPage.pageSize}, '>>', 'Última', ${resourcePath})"></a>
       </li>
     </ul>
   </nav>
 </section>
 
-<a th:fragment="page(pageNum, pageSize, label, tooltip, resourcePath)" class="page-link" th:href="@{'/'+${resourcePath} + '?' + 'page=' + ${pageNum} + '&size=' + ${pageSize}}" th:title="${tooltip}" rel="tooltip">
+<a th:fragment="page(pageNum, pageSize, label, tooltip, resourcePath)"
+   th:href="@{'/'+${resourcePath} + '?' + 'page=' + ${pageNum} + '&size=' + ${pageSize}}"
+   th:title="${tooltip}" rel="tooltip"
+  class="px-3 py-1 mx-0.5 rounded transition-colors duration-150 text-sm font-medium
+       hover:bg-orange-100 hover:text-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400
+       text-gray-700 bg-white border border-gray-300">
   [[${label}]]
 </a>
