@@ -115,6 +115,15 @@ public class AccountController {
                 return mav;
             }
 
+            // Validações adicionais
+            if (idAccount == null || idAccount <= 0) {
+                throw new InvalidDataException("ID da conta inválido");
+            }
+            
+            if (transaction.getCategory() == null || transaction.getCategory().getId() == null) {
+                throw new InvalidDataException("Categoria da transação é obrigatória");
+            }
+
             Account account = accService.findByIdWithTransactions(idAccount);
             if (account == null) {
                 throw new ResourceNotFoundException("Conta não encontrada: " + idAccount);
@@ -147,16 +156,58 @@ public class AccountController {
             if (e instanceof ResourceNotFoundException || e instanceof InvalidDataException) {
                 throw e;
             }
-            throw new BusinessException("Erro no processamento da transação", e);
+            
+            // Log the actual exception for debugging
+            System.err.println("Erro no processamento da transação: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            
+            // Provide more specific error messages based on exception type
+            String errorMessage = "Erro no processamento da transação";
+            
+            // Check for constraint violation (validation errors)
+            if (e.getCause() != null && e.getCause().getCause() != null && 
+                e.getCause().getCause() instanceof jakarta.validation.ConstraintViolationException) {
+                jakarta.validation.ConstraintViolationException cve = 
+                    (jakarta.validation.ConstraintViolationException) e.getCause().getCause();
+                StringBuilder violations = new StringBuilder();
+                cve.getConstraintViolations().forEach(violation -> {
+                    if (violations.length() > 0) violations.append("; ");
+                    violations.append(violation.getMessage());
+                });
+                errorMessage = "Erro de validação: " + violations.toString();
+            } else if (e.getCause() != null) {
+                errorMessage += ": " + e.getCause().getMessage();
+            } else if (e.getMessage() != null) {
+                errorMessage += ": " + e.getMessage();
+            }
+            
+            throw new BusinessException(errorMessage, e);
         }
     }
 
     private void updateExistingTransaction(Transaction existing, Transaction updated) {
+        if (existing == null) {
+            throw new InvalidDataException("Transação existente não pode ser nula");
+        }
+        if (updated == null) {
+            throw new InvalidDataException("Dados da transação atualizada não podem ser nulos");
+        }
+        
         existing.setValue(updated.getValue());
         existing.setDescription(updated.getDescription());
         existing.setDate(updated.getDate());
         existing.setType(updated.getType());
-        existing.setCategory(catService.findById(updated.getCategory().getId()));
+        
+        // Validar categoria antes de buscar
+        if (updated.getCategory() == null || updated.getCategory().getId() == null) {
+            throw new InvalidDataException("Categoria da transação é obrigatória");
+        }
+        
+        Category category = catService.findById(updated.getCategory().getId());
+        if (category == null) {
+            throw new ResourceNotFoundException("Categoria não encontrada: " + updated.getCategory().getId());
+        }
+        existing.setCategory(category);
     }
 
     @GetMapping(value = "/{id}/transactions")

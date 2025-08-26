@@ -18,6 +18,7 @@ public class User {
     private String username;
     private String password;
     private Boolean enabled;
+    private String email;
     @OneToMany(mappedBy = "username")
     @ToString.Exclude
     List<Authority> authorities;

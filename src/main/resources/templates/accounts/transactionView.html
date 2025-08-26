@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
-      th:replace="layout/base :: html(pageTitle='CaesarCoin - Visualizar Transação', contentFragment=~{:: content})">
+      th:replace="~{layout/base :: html(pageTitle='CaesarCoin - Visualizar Transação', contentFragment=~{:: content})}">>
 
 <div th:fragment="content">
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">

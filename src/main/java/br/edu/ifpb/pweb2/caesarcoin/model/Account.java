@@ -24,7 +24,7 @@ public class Account implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Pattern(regexp = "^.{5}$", message = "Número da conta deve estar no formato xxxxx")
+    @Pattern(regexp = "^.{1,20}$", message = "Número da conta deve ter no máximo 20 dígitos")
     private String number;
     @NotBlank(message = "Conta deve ter uma descrição")
     private String description;
