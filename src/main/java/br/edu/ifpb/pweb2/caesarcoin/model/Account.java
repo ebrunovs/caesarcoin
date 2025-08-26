@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,8 +24,11 @@ public class Account implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Pattern(regexp = "^.{5}$", message = "Número da conta deve estar no formato xxxxx")
     private String number;
+    @NotBlank(message = "Conta deve ter uma descrição")
     private String description;
+    @NotBlank(message = "Tipo da conta é obrigatório")
     private String type;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy")

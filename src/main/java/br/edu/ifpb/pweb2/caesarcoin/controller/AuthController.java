@@ -2,6 +2,7 @@ package br.edu.ifpb.pweb2.caesarcoin.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import br.edu.ifpb.pweb2.caesarcoin.repository.AccountOwnerRepository;
 import br.edu.ifpb.pweb2.caesarcoin.util.PasswordUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/auth")
@@ -35,8 +37,16 @@ public class AuthController {
     }
 
     @PostMapping
-    public ModelAndView validate(AccountOwner accOwner, HttpSession session, ModelAndView model, RedirectAttributes attr){
+    public ModelAndView validate(@Valid AccountOwner accOwner, BindingResult result, HttpSession session, ModelAndView model, RedirectAttributes attr) {
         try {
+
+            if (result.hasErrors()) {
+                model.addObject("user", accOwner);
+                model.addObject(BindingResult.MODEL_KEY_PREFIX + "user", result);
+                model.setViewName("auth/login");
+                return model;
+            }
+            
             if (accOwner.getEmail() == null || accOwner.getEmail().trim().isEmpty()) {
                 throw new InvalidDataException("Email é obrigatório");
             }
@@ -44,10 +54,11 @@ public class AuthController {
                 throw new InvalidDataException("Senha é obrigatória");
             }
             
-            if ((accOwner = this.isValid(accOwner)) != null){
-                session.setAttribute("user", accOwner);
+            AccountOwner authenticatedUser = this.isValid(accOwner);
+            if (authenticatedUser != null) {
+                session.setAttribute("user", authenticatedUser);
                 model.setViewName("redirect:/home");
-            } else{
+            } else {
                 throw new AccountownerNotFoundException("Login e/ou senha inválidos!");
             }
         } catch (Exception e) {
@@ -58,6 +69,7 @@ public class AuthController {
         }
         return model;
     }
+
 
     @GetMapping("/logout")
     public ModelAndView logout(ModelAndView model, HttpSession session){
@@ -70,12 +82,17 @@ public class AuthController {
         return model;
     }
 
-    private AccountOwner isValid(AccountOwner accOwner){
+    private AccountOwner isValid(AccountOwner accOwner) {
         try {
             AccountOwner accOwnerBD = accOwnerRepo.findByEmail(accOwner.getEmail());
             boolean valid = false;
-            if(accOwnerBD != null){
-                if(PasswordUtil.checkPass(accOwner.getPassword(), accOwnerBD.getPassword())){
+            
+            if (accOwnerBD != null) {
+                if (!accOwnerBD.isEnabled()) {
+                    throw new InvalidDataException("Usuário bloqueado!");
+                }
+                
+                if (PasswordUtil.checkPass(accOwner.getPassword(), accOwnerBD.getPassword())) {
                     valid = true;
                 }
             }

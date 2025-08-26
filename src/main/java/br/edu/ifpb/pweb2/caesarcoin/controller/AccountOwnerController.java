@@ -3,6 +3,7 @@ package br.edu.ifpb.pweb2.caesarcoin.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/accountowners")
@@ -33,25 +35,23 @@ public class AccountOwnerController {
 
     @GetMapping("/form")
     public ModelAndView getForm(AccountOwner accOwner, ModelAndView model){
-        model.addObject("menu", "accountowner");
         model.addObject("accountowner", accOwner);
+        model.addObject("menu", "accountowner");
         model.setViewName("accountowners/form");
         return model;
     }
 
     @PostMapping
-    public ModelAndView save(AccountOwner accOwner, ModelAndView model, RedirectAttributes attr){
+    public ModelAndView save(@Valid AccountOwner accOwner,BindingResult result, ModelAndView model, RedirectAttributes attr) {
         try {
-            if (accOwner.getName() == null || accOwner.getName().trim().isEmpty()) {
-                throw new InvalidDataException("Nome é obrigatório");
+
+            if (result.hasErrors()) {         
+                model.addObject("accountowner", accOwner);    
+                model.addObject(BindingResult.MODEL_KEY_PREFIX + "accountowner", result);   
+                model.setViewName("accountowners/form");
+                return model;
             }
-            if (accOwner.getEmail() == null || accOwner.getEmail().trim().isEmpty()) {
-                throw new InvalidDataException("Email é obrigatório");
-            }
-            if (accOwner.getPassword() == null || accOwner.getPassword().trim().isEmpty()) {
-                throw new InvalidDataException("Senha é obrigatória");
-            }
-            
+
             boolean isNew = (accOwner.getId() == null);
 
             accOwnerService.save(accOwner);
@@ -60,7 +60,13 @@ public class AccountOwnerController {
             } else {
                 attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
             }
+            if (!isNew) {
+                attr.addFlashAttribute("message", "Correntista atualizado com sucesso!");
+            } else {
+                attr.addFlashAttribute("message", "Correntista inserido com sucesso!");
+            }
             model.setViewName("redirect:accountowners");
+        
         } catch (Exception e) {
             if (e instanceof InvalidDataException) {
                 throw e;
@@ -114,6 +120,42 @@ public class AccountOwnerController {
         return model;
     }
 
+    @GetMapping("/{id}/block")
+    public ModelAndView blockById(@PathVariable(value = "id") Integer id, ModelAndView mav, RedirectAttributes attr) {
+        try {
+            AccountOwner accOwnerBlock = accOwnerService.findById(id);
+            if (accOwnerBlock == null) {
+                throw new ResourceNotFoundException("Correntista não encontrado");
+            }
+            accOwnerBlock.setEnabled(false);
+            accOwnerService.save(accOwnerBlock); 
+            
+            attr.addFlashAttribute("message", "Correntista bloqueado com sucesso!");
+            mav.setViewName("redirect:/accountowners");
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao bloquear correntista", e);
+        }
+        return mav;
+    }
+
+    @GetMapping("/{id}/unlock")
+    public ModelAndView unlockById(@PathVariable(value = "id") Integer id, ModelAndView mav, RedirectAttributes attr) {
+        try {
+            AccountOwner accOwnerBlock = accOwnerService.findById(id);
+            if (accOwnerBlock == null) {
+                throw new ResourceNotFoundException("Correntista não encontrado");
+            }
+            accOwnerBlock.setEnabled(true);
+            accOwnerService.save(accOwnerBlock); 
+            
+            attr.addFlashAttribute("message", "Correntista desbloqueado com sucesso!");
+            mav.setViewName("redirect:/accountowners");
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao desbloquear correntista", e);
+        }
+        return mav;
+    }
+
     @GetMapping("/{id}/delete")
     public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
@@ -122,6 +164,7 @@ public class AccountOwnerController {
         mav.setViewName("redirect:/accountowners");
         return mav;
     }
+
 
     // Tratamentos de exceção locais
     @ExceptionHandler(ResourceNotFoundException.class)
