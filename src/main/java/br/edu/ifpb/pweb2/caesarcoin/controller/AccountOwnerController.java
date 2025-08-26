@@ -1,21 +1,28 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
+import br.edu.ifpb.pweb2.caesarcoin.model.Account;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
@@ -65,11 +72,19 @@ public class AccountOwnerController {
     }
 
     @GetMapping
-    public ModelAndView listAll(ModelAndView model){
+    public ModelAndView listAll(ModelAndView model, 
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "3") int size
+    ){
+        Pageable paging = PageRequest.of(page - 1, size);
+        Page<AccountOwner> accOwners = accOwnerService.findAll(paging);
+        NavPage navPage = NavePageBuilder.newNavPage(accOwners.getNumber() + 1, accOwners.getTotalElements(),
+                accOwners.getTotalPages(), size);
         try {
             model.addObject("menu", "accountowner");
-            model.addObject("accountowners", accOwnerService.findAll());
+            model.addObject("accountowners", accOwners.getContent());
             model.setViewName("accountowners/list");
+            model.addObject("navPage", navPage);
         } catch (Exception e) {
             throw new BusinessException("Erro ao listar correntistas", e);
         }

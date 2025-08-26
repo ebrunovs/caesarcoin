@@ -10,10 +10,15 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.*;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -66,7 +71,7 @@ public class AccountController {
             model.addObject("menu", "transaction");
             model.setViewName("accounts/transactionForm");
         } catch (Exception e) {
-            throw new BusinessException("Erro ao carregar contas do usuário", e);
+            throw new BusinessException("Erro ao carregar acc do usuário", e);
         }
         return model;
     }
@@ -205,19 +210,31 @@ public class AccountController {
     }
 
     @GetMapping
-    public ModelAndView listAll(ModelAndView model, HttpSession session){
+    public ModelAndView listAll(ModelAndView model, 
+    HttpSession session, 
+    @RequestParam(defaultValue = "1") int page, 
+    @RequestParam(defaultValue = "3") int size
+    ){
+        Pageable paging = PageRequest.of(page - 1, size);
+        AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");
+        Page<Account> accPage;
+        if (accountOwner != null) {
+            accPage = accService.findByAccountOwner(accountOwner, paging);
+        } else {
+            accPage = accService.findAll(paging);
+        }
+        NavPage navPage = NavePageBuilder.newNavPage(accPage.getNumber() + 1, accPage.getTotalElements(), accPage.getTotalPages(), size);
         try {
-            AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");
             if (accountOwner != null) {
-                List<Account> userAccounts = accService.findByAccountOwner(accountOwner);
-                model.addObject("accounts", userAccounts);
+                model.addObject("accounts", accPage.getContent());
             } else {
-                model.addObject("accounts", accService.findAll());
-            }        
+                model.addObject("accounts", accPage.getContent());
+            }
             model.addObject("menu", "account");
             model.setViewName("accounts/list");
+            model.addObject("navPage", navPage);
         } catch (Exception e) {
-            throw new BusinessException("Erro ao listar contas", e);
+            throw new BusinessException("Erro ao listar acc", e);
         }
         return model;
     }

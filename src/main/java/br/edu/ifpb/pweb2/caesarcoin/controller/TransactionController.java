@@ -6,6 +6,8 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.Transaction;
 import br.edu.ifpb.pweb2.caesarcoin.model.Comment;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
 import br.edu.ifpb.pweb2.caesarcoin.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Controller
 @RequestMapping("/transactions")
@@ -43,7 +48,6 @@ public class TransactionController {
             model.addObject("transaction", transaction);
             model.addObject("comment", new Comment());
             
-            // Se há um comentário sendo editado, adiciona ao modelo
             if (editCommentId != null) {
                 model.addObject("editingComment", editCommentId);
             }
@@ -116,10 +120,18 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ModelAndView listAll(ModelAndView model){
+    public ModelAndView listAll(ModelAndView model,
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "3") int size
+    ){
+        Pageable paging = PageRequest.of(page - 1, size);
+        Page<Transaction> transaction = transactionService.findAll(paging);
+        NavPage navPage = NavePageBuilder.newNavPage(transaction.getNumber() + 1, transaction.getTotalElements(),
+                transaction.getTotalPages(), size);
         try {
             model.addObject("transactions", transactionService.findAll());
             model.setViewName("transactions/list");
+            model.addObject("navPage", navPage);
         } catch (Exception e) {
             throw new BusinessException("Erro ao listar transações", e);
         }
