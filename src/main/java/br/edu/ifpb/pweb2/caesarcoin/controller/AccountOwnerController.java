@@ -1,11 +1,14 @@
 package br.edu.ifpb.pweb2.caesarcoin.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +23,7 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.BusinessException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.InvalidDataException;
 import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
+import br.edu.ifpb.pweb2.caesarcoin.model.User;
 import br.edu.ifpb.pweb2.caesarcoin.service.AccountOwnerService;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
@@ -53,7 +57,6 @@ public class AccountOwnerController {
             }
 
             boolean isNew = (accOwner.getId() == null);
-
             accOwnerService.save(accOwner);
             if (!isNew) {
                 attr.addFlashAttribute("message", "Correntista atualizado com sucesso!");
@@ -202,7 +205,10 @@ public class AccountOwnerController {
         return model;
     }
 
-
+    @ModelAttribute("users")
+    public List<User> getUserOptions(){
+        return accOwnerService.findEnabledUsers();
+    }
     
 
 

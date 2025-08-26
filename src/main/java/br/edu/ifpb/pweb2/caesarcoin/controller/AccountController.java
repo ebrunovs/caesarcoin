@@ -18,6 +18,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -47,12 +49,27 @@ public class AccountController {
     @Autowired
     private TransactionService transactionService;
 
+    private AccountOwner getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
+            return accOwnerService.findByEmail(auth.getName());
+        }
+        return null;
+    }
+
     @GetMapping("/form")
     public ModelAndView getForm(ModelAndView model, HttpSession session) {
         try {
-            AccountOwner user = (AccountOwner) session.getAttribute("user");
+            AccountOwner user = getCurrentUser();
+            if (user == null) {
+                // Fallback para sessão se não conseguir pelo Spring Security
+                user = (AccountOwner) session.getAttribute("user");
+            }
+            
             Account account = new Account();
-            account.setAccountOwner(user);
+            if (user != null) {
+                account.setAccountOwner(user);
+            }
             
             model.addObject("menu", "account");
             model.setViewName("accounts/form");
@@ -66,7 +83,11 @@ public class AccountController {
     @GetMapping("/nuaccount")
     public ModelAndView getNuAccount(ModelAndView model, HttpSession session) {
         try {
-            AccountOwner user = (AccountOwner) session.getAttribute("user");
+            AccountOwner user = getCurrentUser();
+            if (user == null) {
+                user = (AccountOwner) session.getAttribute("user");
+            }
+            
             if (user != null) {
                 List<Account> userAccounts = accService.findByAccountOwner(user);
                 model.addObject("userAccounts", userAccounts);
@@ -79,7 +100,7 @@ public class AccountController {
         return model;
     }
 
-   @PostMapping("/transaction")
+    @PostMapping("/transaction")
     public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, 
                                   @Valid Transaction transaction,
                                   BindingResult result,
@@ -130,8 +151,7 @@ public class AccountController {
         }
     }
 
-
-     private void updateExistingTransaction(Transaction existing, Transaction updated) {
+    private void updateExistingTransaction(Transaction existing, Transaction updated) {
         existing.setValue(updated.getValue());
         existing.setDescription(updated.getDescription());
         existing.setDate(updated.getDate());
@@ -211,7 +231,11 @@ public class AccountController {
     @RequestParam(defaultValue = "5") int size
     ){
         Pageable paging = PageRequest.of(page - 1, size);
-        AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");
+        AccountOwner accountOwner = getCurrentUser();
+        if (accountOwner == null) {
+            accountOwner = (AccountOwner) session.getAttribute("user");
+        }
+        
         Page<Account> accPage;
         if (accountOwner != null) {
             accPage = accService.findByAccountOwner(accountOwner, paging);
@@ -239,7 +263,10 @@ public class AccountController {
         try {
             
             if (result.hasErrors()) {
-                AccountOwner user = (AccountOwner) session.getAttribute("user");
+                AccountOwner user = getCurrentUser();
+                if (user == null) {
+                    user = (AccountOwner) session.getAttribute("user");
+                }
                 account.setAccountOwner(user);
                 model.addObject("account", account);
                 model.addObject(BindingResult.MODEL_KEY_PREFIX + "account", result);
@@ -247,7 +274,10 @@ public class AccountController {
                 return model;
             }
 
-            AccountOwner user = (AccountOwner) session.getAttribute("user");
+            AccountOwner user = getCurrentUser();
+            if (user == null) {
+                user = (AccountOwner) session.getAttribute("user");
+            }
             if (user != null) {
                 account.setAccountOwner(user);
             }
@@ -305,7 +335,6 @@ public class AccountController {
         return mav;
     }
 
-
     @RequestMapping("/{id}/delete")
     public ModelAndView deleteById(@PathVariable(value = "id") Integer id,
         ModelAndView mav, RedirectAttributes attr) {
@@ -321,7 +350,7 @@ public class AccountController {
         Transaction transaction = transactionService.findById(id);
         transactionService.deleteById(id);
         attr.addFlashAttribute("message", "Transação removida com sucesso!");
-        String redirect = "redirect:/accounts/ " + transaction.getAccount().getId() + " /transactions";
+        String redirect = "redirect:/accounts/" + transaction.getAccount().getId() + "/transactions";
         mav.setViewName(redirect);
         return mav;
     }
@@ -516,8 +545,6 @@ public class AccountController {
         return s;
     }
 
-
-
     // Tratamentos de exceção locais
     @ExceptionHandler(ResourceNotFoundException.class)
     public ModelAndView handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {
@@ -540,8 +567,6 @@ public class AccountController {
         model.addObject("status", resp.getStatus());
         return model;
     }
-
-
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ModelAndView handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest req, jakarta.servlet.http.HttpServletResponse resp) {
