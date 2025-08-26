@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import br.edu.ifpb.pweb2.caesarcoin.model.User;
@@ -24,6 +26,12 @@ public class AccountOwnerService implements Service<AccountOwner, Integer>{
     public List<AccountOwner> findAll(){
         return accOwnerRepo.findAll();
     }
+
+    @Override
+    public Page<AccountOwner> findAll(Pageable p) {
+        return accOwnerRepo.findAll(p);
+    }
+
 
     @Override
     public AccountOwner findById(Integer id) {

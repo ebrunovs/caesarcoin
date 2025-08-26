@@ -4,6 +4,8 @@ import br.edu.ifpb.pweb2.caesarcoin.model.*;
 import br.edu.ifpb.pweb2.caesarcoin.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -13,6 +15,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class TransactionService implements Service<Transaction, Integer> {
+    public Page<Transaction> findByAccount(Account account, Pageable pageable) {
+        return transactionRepository.findByAccount(account, pageable);
+    }
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -20,6 +25,11 @@ public class TransactionService implements Service<Transaction, Integer> {
     @Override
     public List<Transaction> findAll(){
         return transactionRepository.findAll();
+    }
+
+    @Override
+    public Page<Transaction> findAll(Pageable p) {
+        return transactionRepository.findAll(p);
     }
 
     public void deleteById(Integer id) {

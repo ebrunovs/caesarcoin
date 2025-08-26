@@ -10,4 +10,5 @@ public interface AccountOwnerRepository extends JpaRepository<AccountOwner, Inte
 
     AccountOwner findByEmail(String email);
 
+
 }

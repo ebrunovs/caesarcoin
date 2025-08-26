@@ -10,11 +10,19 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.*;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import br.edu.ifpb.pweb2.caesarcoin.util.CategoryColorHelper;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
+import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -66,99 +74,91 @@ public class AccountController {
             model.addObject("menu", "transaction");
             model.setViewName("accounts/transactionForm");
         } catch (Exception e) {
-            throw new BusinessException("Erro ao carregar contas do usuário", e);
+            throw new BusinessException("Erro ao carregar acc do usuário", e);
         }
         return model;
     }
 
-    @PostMapping("/transaction")
-    public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, Transaction transaction, ModelAndView mav, RedirectAttributes attr) {
+   @PostMapping("/transaction")
+    public ModelAndView postTransaction(@RequestParam("idAccount") Integer idAccount, 
+                                  @Valid Transaction transaction,
+                                  BindingResult result,
+                                  ModelAndView mav, 
+                                  RedirectAttributes attr) {
         try {
+            if (result.hasErrors()) {
+                Account account = accService.findById(idAccount);
+                mav.addObject("account", account);
+                mav.addObject("transaction", transaction);
+                mav.setViewName("accounts/transactionForm");
+                return mav;
+            }
+
+            Account account = accService.findByIdWithTransactions(idAccount);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada: " + idAccount);
+            }
+
             if (transaction.getId() != null) {
+                // Lógica de atualização
                 Transaction existing = transactionService.findById(transaction.getId());
                 if (existing == null) {
                     throw new ResourceNotFoundException("Transação não encontrada");
                 }
-                
-                Account existingAccount = existing.getAccount();
-                existing.setValue(transaction.getValue());
-                existing.setDescription(transaction.getDescription());
-                existing.setDate(transaction.getDate());
-                existing.setType(transaction.getType());
-                existing.setCategory(catService.findById(transaction.getCategory().getId()));
+                updateExistingTransaction(existing, transaction);
                 transactionService.save(existing);
-
                 attr.addFlashAttribute("message", "Transação atualizada com sucesso!");
-                mav.setViewName("redirect:/accounts/" + existingAccount.getId() + "/transactions");
-                return mav;
-            }
-
-            if (idAccount != null && transaction.getValue() == null) {
-                Account account = accService.findByIdWithTransactions(idAccount);
-                if (account != null) {
-                    transaction.setCategory(new Category());
-                    mav.addObject("account", account);
-                    mav.addObject("transaction", transaction);
-                    mav.setViewName("accounts/transactionForm");
-                } else {
-                    throw new ResourceNotFoundException("Conta inexistente!");
-                }
             } else {
-                if (idAccount == null || idAccount <= 0) {
-                    throw new InvalidDataException("ID da conta é obrigatório");
-                }
-                if (transaction.getValue() == null || transaction.getValue().doubleValue() <= 0) {
-                    throw new InvalidDataException("Valor deve ser maior que zero");
-                }
-                if (transaction.getDescription() == null || transaction.getDescription().trim().isEmpty()) {
-                    throw new InvalidDataException("Descrição é obrigatória");
-                }
-                if (transaction.getCategory() == null || transaction.getCategory().getId() == null) {
-                    throw new InvalidDataException("Categoria é obrigatória");
-                }
-                
-                Account account = accService.findByIdWithTransactions(idAccount);
-                if (account == null) {
-                    throw new ResourceNotFoundException("Conta não encontrada: " + idAccount);
-                }
-                
-                Integer categoryId = transaction.getCategory().getId();
-                Category category = catService.findById(categoryId);
+                // Lógica de nova transação
+                Category category = catService.findById(transaction.getCategory().getId());
                 if (category == null) {
                     throw new ResourceNotFoundException("Categoria não encontrada");
                 }
-                
                 account.addTransaction(transaction, category);
                 accService.save(account);
-
                 attr.addFlashAttribute("message", "Transação cadastrada com sucesso!");
-                mav.setViewName("redirect:/accounts/" + account.getId() + "/transactions");
             }
+
+            mav.setViewName("redirect:/accounts/" + account.getId() + "/transactions");
+            return mav;
+
         } catch (Exception e) {
-            if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {
+            if (e instanceof ResourceNotFoundException || e instanceof InvalidDataException) {
                 throw e;
             }
             throw new BusinessException("Erro no processamento da transação", e);
         }
-        return mav;
     }
 
 
+     private void updateExistingTransaction(Transaction existing, Transaction updated) {
+        existing.setValue(updated.getValue());
+        existing.setDescription(updated.getDescription());
+        existing.setDate(updated.getDate());
+        existing.setType(updated.getType());
+        existing.setCategory(catService.findById(updated.getCategory().getId()));
+    }
 
     @GetMapping(value = "/{id}/transactions")
-    public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount, ModelAndView mav) {
+    public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount,
+                                             @RequestParam(defaultValue = "1") int page,
+                                             @RequestParam(defaultValue = "5") int size,
+                                             ModelAndView mav) {
         try {
             if (idAccount == null || idAccount <= 0) {
                 throw new InvalidDataException("ID da conta inválido");
             }
-            
-            Account account = accService.findByIdWithTransactions(idAccount);
+            Account account = accService.findById(idAccount);
             if (account == null) {
                 throw new ResourceNotFoundException("Conta não encontrada com ID: " + idAccount);
             }
-            
+            Pageable paging = PageRequest.of(page - 1, size);
+            Page<Transaction> transactionPage = transactionService.findByAccount(account, paging);
+            NavPage navPage = NavePageBuilder.newNavPage(transactionPage.getNumber() + 1, transactionPage.getTotalElements(), transactionPage.getTotalPages(), size);
             mav.addObject("menu", "transaction");
             mav.addObject("account", account);
+            mav.addObject("transactions", transactionPage.getContent());
+            mav.addObject("navPage", navPage);
             mav.setViewName("accounts/transactionList");
         } catch (Exception e) {
             if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {
@@ -205,36 +205,48 @@ public class AccountController {
     }
 
     @GetMapping
-    public ModelAndView listAll(ModelAndView model, HttpSession session){
+    public ModelAndView listAll(ModelAndView model, 
+    HttpSession session, 
+    @RequestParam(defaultValue = "1") int page, 
+    @RequestParam(defaultValue = "5") int size
+    ){
+        Pageable paging = PageRequest.of(page - 1, size);
+        AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");
+        Page<Account> accPage;
+        if (accountOwner != null) {
+            accPage = accService.findByAccountOwner(accountOwner, paging);
+        } else {
+            accPage = accService.findAll(paging);
+        }
+        NavPage navPage = NavePageBuilder.newNavPage(accPage.getNumber() + 1, accPage.getTotalElements(), accPage.getTotalPages(), size);
         try {
-            AccountOwner accountOwner = (AccountOwner) session.getAttribute("user");
             if (accountOwner != null) {
-                List<Account> userAccounts = accService.findByAccountOwner(accountOwner);
-                model.addObject("accounts", userAccounts);
+                model.addObject("accounts", accPage.getContent());
             } else {
-                model.addObject("accounts", accService.findAll());
-            }        
+                model.addObject("accounts", accPage.getContent());
+            }
             model.addObject("menu", "account");
             model.setViewName("accounts/list");
+            model.addObject("navPage", navPage);
         } catch (Exception e) {
-            throw new BusinessException("Erro ao listar contas", e);
+            throw new BusinessException("Erro ao listar acc", e);
         }
         return model;
     }
 
     @PostMapping
-    public ModelAndView save(Account account, ModelAndView model, RedirectAttributes attr, HttpSession session) {
+    public ModelAndView save(@Valid Account account,BindingResult result, ModelAndView model, RedirectAttributes attr, HttpSession session) {
         try {
-            if (account.getNumber() == null || account.getNumber().trim().isEmpty()) {
-                throw new InvalidDataException("Número da conta é obrigatório");
-            }
-            if (account.getDescription() == null || account.getDescription().trim().isEmpty()) {
-                throw new InvalidDataException("Descrição é obrigatória");
-            }
-            if (account.getType() == null) {
-                throw new InvalidDataException("Tipo da conta é obrigatório");
-            }
             
+            if (result.hasErrors()) {
+                AccountOwner user = (AccountOwner) session.getAttribute("user");
+                account.setAccountOwner(user);
+                model.addObject("account", account);
+                model.addObject(BindingResult.MODEL_KEY_PREFIX + "account", result);
+                model.setViewName("accounts/form");
+                return model;
+            }
+
             AccountOwner user = (AccountOwner) session.getAttribute("user");
             if (user != null) {
                 account.setAccountOwner(user);
@@ -398,6 +410,93 @@ public class AccountController {
             throw new BusinessException("Erro ao gerar orçamento anual", e);
         }
         return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget/chart-view")
+    public ModelAndView getAnnualBudgetChartView(
+            @PathVariable("id") Integer id,
+            @RequestParam(value = "year", defaultValue = "0") int year,
+            ModelAndView mav) {
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada.");
+            }
+
+            int selectedYear = (year == 0) ? Year.now().getValue() : year;
+
+            // Buscar todas as categorias por tipo
+            List<Category> allIncomes = catService.findByTransactionType(TransactionType.ENTRADA);
+            List<Category> allOutcomes = catService.findByTransactionType(TransactionType.SAIDA);
+            List<Category> allInvestments = catService.findByTransactionType(TransactionType.INVESTIMENTO);
+
+            mav.addObject("account", account);
+            mav.addObject("year", selectedYear);
+            mav.addObject("allIncomes", allIncomes);
+            mav.addObject("allOutcomes", allOutcomes);
+            mav.addObject("allInvestments", allInvestments);
+            mav.setViewName("accounts/chart");
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao carregar a visualização do gráfico", e);
+        }
+        return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget/chart")
+    @ResponseBody
+    public ChartData getAnnualBudgetChartData(
+            @PathVariable("id") Integer id,
+            @RequestParam("year") int year,
+            @RequestParam(value = "incomes", required = false) List<Integer> incomeCategoryIds,
+            @RequestParam(value = "outcomes", required = false) List<Integer> outcomeCategoryIds,
+            @RequestParam(value = "investments", required = false) List<Integer> investmentCategoryIds) {
+
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada");
+            }
+
+            List<AnnualCategoryBudget> budget = transactionService.generateAnnualBudget(account, year);
+
+            List<String> labels = List.of("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez");
+
+            List<ChartDataset> datasets = new java.util.ArrayList<>();
+
+            if (incomeCategoryIds != null && !incomeCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, incomeCategoryIds, TransactionType.ENTRADA, "#10B981"));
+            }
+            if (outcomeCategoryIds != null && !outcomeCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, outcomeCategoryIds, TransactionType.SAIDA, "#EF4444"));
+            }
+            if (investmentCategoryIds != null && !investmentCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, investmentCategoryIds, TransactionType.INVESTIMENTO, "#3B82F6"));
+            }
+
+            return new ChartData(labels, datasets);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar dados do gráfico: " + e.getMessage(), e);
+        }
+    }
+
+    private List<ChartDataset> createDatasets(List<AnnualCategoryBudget> budget, List<Integer> categoryIds, TransactionType type, String baseColor) {
+        List<ChartDataset> result = new java.util.ArrayList<>();
+        
+        for (AnnualCategoryBudget b : budget) {
+            if (b.getCategory().getKind() == type && categoryIds.contains(b.getCategory().getId())) {
+                Category category = b.getCategory();
+                String borderColor = CategoryColorHelper.getColorForCategory(category);
+                String backgroundColor = CategoryColorHelper.getBackgroundColorForCategory(category);
+                
+                List<Double> data = new java.util.ArrayList<>();
+                for (double total : b.getMonthlyTotals()) {
+                    data.add(total);
+                }
+                result.add(new ChartDataset(category.getName(), data, borderColor, backgroundColor));
+            }
+        }
+        
+        return result;
     }
 
     private double[] sumMonths(List<AnnualCategoryBudget> list) {

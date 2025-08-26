@@ -3,6 +3,8 @@ package br.edu.ifpb.pweb2.caesarcoin.repository;
 import java.util.List;
 import br.edu.ifpb.pweb2.caesarcoin.model.AccountOwner;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface AccountRepository extends JpaRepository<Account,Integer> {
 
     List<Account> findByAccountOwner(AccountOwner accountOwner);
+    Page<Account> findByAccountOwner(AccountOwner accountOwner, Pageable pageable);
     
     void deleteById(Integer id);
  

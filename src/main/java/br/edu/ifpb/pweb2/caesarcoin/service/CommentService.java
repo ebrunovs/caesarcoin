@@ -5,6 +5,8 @@ import br.edu.ifpb.pweb2.caesarcoin.model.Transaction;
 import br.edu.ifpb.pweb2.caesarcoin.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -18,6 +20,12 @@ public class CommentService implements Service<Comment, Integer> {
     public List<Comment> findAll() {
         return commentRepository.findAll();
     }
+    
+    @Override
+    public Page<Comment> findAll(Pageable p) {
+        return commentRepository.findAll(p);
+    }
+
 
     @Override
     public Comment findById(Integer id) {
