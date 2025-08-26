@@ -10,6 +10,7 @@ import br.edu.ifpb.pweb2.caesarcoin.exception.ResourceNotFoundException;
 import br.edu.ifpb.pweb2.caesarcoin.model.*;
 import br.edu.ifpb.pweb2.caesarcoin.service.CategoryService;
 import br.edu.ifpb.pweb2.caesarcoin.service.TransactionService;
+import br.edu.ifpb.pweb2.caesarcoin.util.CategoryColorHelper;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavPage;
 import br.edu.ifpb.pweb2.caesarcoin.ui.NavePageBuilder;
 import jakarta.servlet.http.HttpServletRequest;
@@ -421,6 +422,93 @@ public class AccountController {
             throw new BusinessException("Erro ao gerar orçamento anual", e);
         }
         return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget/chart-view")
+    public ModelAndView getAnnualBudgetChartView(
+            @PathVariable("id") Integer id,
+            @RequestParam(value = "year", defaultValue = "0") int year,
+            ModelAndView mav) {
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada.");
+            }
+
+            int selectedYear = (year == 0) ? Year.now().getValue() : year;
+
+            // Buscar todas as categorias por tipo
+            List<Category> allIncomes = catService.findByTransactionType(TransactionType.ENTRADA);
+            List<Category> allOutcomes = catService.findByTransactionType(TransactionType.SAIDA);
+            List<Category> allInvestments = catService.findByTransactionType(TransactionType.INVESTIMENTO);
+
+            mav.addObject("account", account);
+            mav.addObject("year", selectedYear);
+            mav.addObject("allIncomes", allIncomes);
+            mav.addObject("allOutcomes", allOutcomes);
+            mav.addObject("allInvestments", allInvestments);
+            mav.setViewName("accounts/chart");
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao carregar a visualização do gráfico", e);
+        }
+        return mav;
+    }
+
+    @GetMapping("/{id}/annual-budget/chart")
+    @ResponseBody
+    public ChartData getAnnualBudgetChartData(
+            @PathVariable("id") Integer id,
+            @RequestParam("year") int year,
+            @RequestParam(value = "incomes", required = false) List<Integer> incomeCategoryIds,
+            @RequestParam(value = "outcomes", required = false) List<Integer> outcomeCategoryIds,
+            @RequestParam(value = "investments", required = false) List<Integer> investmentCategoryIds) {
+
+        try {
+            Account account = accService.findById(id);
+            if (account == null) {
+                throw new ResourceNotFoundException("Conta não encontrada");
+            }
+
+            List<AnnualCategoryBudget> budget = transactionService.generateAnnualBudget(account, year);
+
+            List<String> labels = List.of("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez");
+
+            List<ChartDataset> datasets = new java.util.ArrayList<>();
+
+            if (incomeCategoryIds != null && !incomeCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, incomeCategoryIds, TransactionType.ENTRADA, "#10B981"));
+            }
+            if (outcomeCategoryIds != null && !outcomeCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, outcomeCategoryIds, TransactionType.SAIDA, "#EF4444"));
+            }
+            if (investmentCategoryIds != null && !investmentCategoryIds.isEmpty()) {
+                datasets.addAll(createDatasets(budget, investmentCategoryIds, TransactionType.INVESTIMENTO, "#3B82F6"));
+            }
+
+            return new ChartData(labels, datasets);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar dados do gráfico: " + e.getMessage(), e);
+        }
+    }
+
+    private List<ChartDataset> createDatasets(List<AnnualCategoryBudget> budget, List<Integer> categoryIds, TransactionType type, String baseColor) {
+        List<ChartDataset> result = new java.util.ArrayList<>();
+        
+        for (AnnualCategoryBudget b : budget) {
+            if (b.getCategory().getKind() == type && categoryIds.contains(b.getCategory().getId())) {
+                Category category = b.getCategory();
+                String borderColor = CategoryColorHelper.getColorForCategory(category);
+                String backgroundColor = CategoryColorHelper.getBackgroundColorForCategory(category);
+                
+                List<Double> data = new java.util.ArrayList<>();
+                for (double total : b.getMonthlyTotals()) {
+                    data.add(total);
+                }
+                result.add(new ChartDataset(category.getName(), data, borderColor, backgroundColor));
+            }
+        }
+        
+        return result;
     }
 
     private double[] sumMonths(List<AnnualCategoryBudget> list) {
