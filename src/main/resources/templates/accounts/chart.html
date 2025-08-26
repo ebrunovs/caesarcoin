@@ -35,48 +35,78 @@
                     </div>
                     
                     <div>
-                        <label for="incomes" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label for="incomes" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-arrow-up text-green-600 mr-1"></i>Entradas
                         </label>
-                        <select id="incomes" name="incomes" multiple
-                                class="w-full h-20 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                            <option th:each="cat : ${allIncomes}" th:value="${cat.id}" th:text="${cat.name}"></option>
-                        </select>
+                        <div class="category-selector" data-type="incomes" data-color="green">
+                            <div class="chips-container mb-2" id="incomes-chips"></div>
+                            <select id="incomes" name="incomes" multiple class="hidden">
+                                <option th:each="cat : ${allIncomes}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                            <button type="button" class="add-category-btn w-full px-3 py-2 border-2 border-dashed border-green-300 rounded-md text-green-600 hover:border-green-400 hover:bg-green-50 transition-colors text-sm">
+                                <i class="fas fa-plus mr-1"></i>Adicionar categoria
+                            </button>
+                            <div class="category-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                <div th:each="cat : ${allIncomes}" 
+                                     class="category-option px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                     th:data-value="${cat.id}" 
+                                     th:text="${cat.name}"></div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div>
-                        <label for="outcomes" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label for="outcomes" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-arrow-down text-red-600 mr-1"></i>Saídas
                         </label>
-                        <select id="outcomes" name="outcomes" multiple
-                                class="w-full h-20 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                            <option th:each="cat : ${allOutcomes}" th:value="${cat.id}" th:text="${cat.name}"></option>
-                        </select>
+                        <div class="category-selector" data-type="outcomes" data-color="red">
+                            <div class="chips-container mb-2" id="outcomes-chips"></div>
+                            <select id="outcomes" name="outcomes" multiple class="hidden">
+                                <option th:each="cat : ${allOutcomes}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                            <button type="button" class="add-category-btn w-full px-3 py-2 border-2 border-dashed border-red-300 rounded-md text-red-600 hover:border-red-400 hover:bg-red-50 transition-colors text-sm">
+                                <i class="fas fa-plus mr-1"></i>Adicionar categoria
+                            </button>
+                            <div class="category-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                <div th:each="cat : ${allOutcomes}" 
+                                     class="category-option px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                     th:data-value="${cat.id}" 
+                                     th:text="${cat.name}"></div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div>
-                        <label for="investments" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label for="investments" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-chart-line text-blue-600 mr-1"></i>Investimentos
                         </label>
-                        <select id="investments" name="investments" multiple
-                                class="w-full h-20 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option th:each="cat : ${allInvestments}" th:value="${cat.id}" th:text="${cat.name}"></option>
-                        </select>
+                        <div class="category-selector" data-type="investments" data-color="blue">
+                            <div class="chips-container mb-2" id="investments-chips"></div>
+                            <select id="investments" name="investments" multiple class="hidden">
+                                <option th:each="cat : ${allInvestments}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                            <button type="button" class="add-category-btn w-full px-3 py-2 border-2 border-dashed border-blue-300 rounded-md text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-colors text-sm">
+                                <i class="fas fa-plus mr-1"></i>Adicionar categoria
+                            </button>
+                            <div class="category-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                <div th:each="cat : ${allInvestments}" 
+                                     class="category-option px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                     th:data-value="${cat.id}" 
+                                     th:text="${cat.name}"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="flex justify-between items-center">
-                    <div class="text-xs text-gray-500">
-                        <p><strong>Dica:</strong> Mantenha pressionado Ctrl (Windows/Linux) ou Cmd (Mac) para selecionar múltiplas categorias.</p>
-                    </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-3">
                         <button type="button" id="select-all-btn"
-                                class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                            Selecionar Todas
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-check-double mr-1"></i>Selecionar Todas
                         </button>
                         <button type="button" id="clear-all-btn"
-                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                            Limpar Seleção
+                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-times mr-1"></i>Limpar Seleção
                         </button>
                     </div>
                 </div>
@@ -102,6 +132,94 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .category-selector {
+            position: relative;
+        }
+        
+        .chips-container {
+            min-height: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background-color: #f9fafb;
+        }
+        
+        .chips-container:empty::before {
+            content: 'Nenhuma categoria selecionada';
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+        
+        .category-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            animation: chipIn 0.2s ease-out;
+        }
+        
+        .category-chip.green {
+            background-color: #10b981;
+        }
+        
+        .category-chip.red {
+            background-color: #ef4444;
+        }
+        
+        .category-chip.blue {
+            background-color: #3b82f6;
+        }
+        
+        .category-chip .remove-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .category-chip .remove-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .category-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-option.selected {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+        
+        @keyframes chipIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+    
     <script th:inline="javascript">
         const accountId = /*[[${account.id}]]*/ 0;
         const form = document.getElementById('chart-form');
@@ -113,6 +231,141 @@
         const clearAllBtn = document.getElementById('clear-all-btn');
         
         let chart = null;
+
+        // Inicializar sistema de chips
+        function initializeChipSystem() {
+            const selectors = document.querySelectorAll('.category-selector');
+            
+            selectors.forEach(selector => {
+                const type = selector.dataset.type;
+                const color = selector.dataset.color;
+                const addBtn = selector.querySelector('.add-category-btn');
+                const dropdown = selector.querySelector('.category-dropdown');
+                const chipsContainer = selector.querySelector('.chips-container');
+                const select = document.getElementById(type);
+                
+                // Abrir/fechar dropdown
+                addBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeAllDropdowns();
+                    dropdown.classList.toggle('hidden');
+                });
+                
+                // Selecionar categoria
+                dropdown.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('category-option')) {
+                        const value = e.target.dataset.value;
+                        const text = e.target.textContent;
+                        
+                        if (!e.target.classList.contains('selected')) {
+                            addChip(chipsContainer, value, text, color, type);
+                            updateSelectOption(select, value, true);
+                            e.target.classList.add('selected');
+                            updateChart();
+                        }
+                    }
+                });
+                
+                // Fechar dropdown ao clicar fora
+                document.addEventListener('click', () => {
+                    dropdown.classList.add('hidden');
+                });
+            });
+        }
+        
+        function closeAllDropdowns() {
+            document.querySelectorAll('.category-dropdown').forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+        }
+        
+        function addChip(container, value, text, color, type) {
+            const chip = document.createElement('div');
+            chip.className = `category-chip ${color}`;
+            chip.dataset.value = value;
+            chip.innerHTML = `
+                <span>${text}</span>
+                <button type="button" class="remove-btn" onclick="removeChip(this, '${type}')">
+                    <i class="fas fa-times" style="font-size: 8px;"></i>
+                </button>
+            `;
+            container.appendChild(chip);
+        }
+        
+        window.removeChip = function(btn, type) {
+            const chip = btn.closest('.category-chip');
+            const value = chip.dataset.value;
+            const select = document.getElementById(type);
+            const selector = btn.closest('.category-selector');
+            const dropdown = selector.querySelector('.category-dropdown');
+            
+            // Remover chip
+            chip.remove();
+            
+            // Atualizar select
+            updateSelectOption(select, value, false);
+            
+            // Atualizar estado do dropdown
+            const option = dropdown.querySelector(`[data-value="${value}"]`);
+            if (option) {
+                option.classList.remove('selected');
+            }
+            
+            updateChart();
+        };
+        
+        function updateSelectOption(select, value, selected) {
+            const option = select.querySelector(`option[value="${value}"]`);
+            if (option) {
+                option.selected = selected;
+            }
+        }
+        
+        function selectAllCategories() {
+            clearAllSelections();
+            
+            const selectors = document.querySelectorAll('.category-selector');
+            selectors.forEach(selector => {
+                const type = selector.dataset.type;
+                const color = selector.dataset.color;
+                const chipsContainer = selector.querySelector('.chips-container');
+                const select = document.getElementById(type);
+                const dropdown = selector.querySelector('.category-dropdown');
+                
+                const options = dropdown.querySelectorAll('.category-option');
+                options.forEach(option => {
+                    const value = option.dataset.value;
+                    const text = option.textContent;
+                    
+                    addChip(chipsContainer, value, text, color, type);
+                    updateSelectOption(select, value, true);
+                    option.classList.add('selected');
+                });
+            });
+            
+            updateChart();
+        }
+        
+        function clearAllSelections() {
+            // Limpar todos os chips
+            document.querySelectorAll('.chips-container').forEach(container => {
+                container.innerHTML = '';
+            });
+            
+            // Limpar selects
+            [incomeSelect, outcomeSelect, investmentSelect].forEach(select => {
+                for (let option of select.options) {
+                    option.selected = false;
+                }
+            });
+            
+            // Limpar estado dos dropdowns
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            updateChart();
+        }
 
         function formatCurrency(value) {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -289,31 +542,16 @@
             `;
         }
 
-        function selectAllCategories() {
-            [incomeSelect, outcomeSelect, investmentSelect].forEach(select => {
-                for (let option of select.options) {
-                    option.selected = true;
-                }
-            });
-            updateChart();
-        }
-
-        function clearAllSelections() {
-            [incomeSelect, outcomeSelect, investmentSelect].forEach(select => {
-                for (let option of select.options) {
-                    option.selected = false;
-                }
-            });
-            updateChart();
-        }
-
         // Event listeners
-        form.addEventListener('change', updateChart);
+        yearSelect.addEventListener('change', updateChart);
         selectAllBtn.addEventListener('click', selectAllCategories);
         clearAllBtn.addEventListener('click', clearAllSelections);
         
-        // Renderização inicial (vazio)
-        updateChart();
+        // Inicializar sistema na carga da página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChipSystem();
+            updateChart(); // Renderização inicial (vazio)
+        });
     </script>
 </div>
 </html>
