@@ -151,19 +151,25 @@ public class AccountController {
 
 
     @GetMapping(value = "/{id}/transactions")
-    public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount, ModelAndView mav) {
+    public ModelAndView addTransactionAccount(@PathVariable("id") Integer idAccount,
+                                             @RequestParam(defaultValue = "1") int page,
+                                             @RequestParam(defaultValue = "3") int size,
+                                             ModelAndView mav) {
         try {
             if (idAccount == null || idAccount <= 0) {
                 throw new InvalidDataException("ID da conta inválido");
             }
-            
-            Account account = accService.findByIdWithTransactions(idAccount);
+            Account account = accService.findById(idAccount);
             if (account == null) {
                 throw new ResourceNotFoundException("Conta não encontrada com ID: " + idAccount);
             }
-            
+            Pageable paging = PageRequest.of(page - 1, size);
+            Page<Transaction> transactionPage = transactionService.findByAccount(account, paging);
+            NavPage navPage = NavePageBuilder.newNavPage(transactionPage.getNumber() + 1, transactionPage.getTotalElements(), transactionPage.getTotalPages(), size);
             mav.addObject("menu", "transaction");
             mav.addObject("account", account);
+            mav.addObject("transactions", transactionPage.getContent());
+            mav.addObject("navPage", navPage);
             mav.setViewName("accounts/transactionList");
         } catch (Exception e) {
             if (e instanceof InvalidDataException || e instanceof ResourceNotFoundException) {

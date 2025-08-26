@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class TransactionService implements Service<Transaction, Integer> {
+    public Page<Transaction> findByAccount(Account account, Pageable pageable) {
+        return transactionRepository.findByAccount(account, pageable);
+    }
 
     @Autowired
     private TransactionRepository transactionRepository;

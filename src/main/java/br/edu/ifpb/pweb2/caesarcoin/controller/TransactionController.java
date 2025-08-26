@@ -125,11 +125,11 @@ public class TransactionController {
         @RequestParam(defaultValue = "3") int size
     ){
         Pageable paging = PageRequest.of(page - 1, size);
-        Page<Transaction> transaction = transactionService.findAll(paging);
-        NavPage navPage = NavePageBuilder.newNavPage(transaction.getNumber() + 1, transaction.getTotalElements(),
-                transaction.getTotalPages(), size);
+        Page<Transaction> transactionPage = transactionService.findAll(paging);
+        NavPage navPage = NavePageBuilder.newNavPage(transactionPage.getNumber() + 1, transactionPage.getTotalElements(),
+                transactionPage.getTotalPages(), size);
         try {
-            model.addObject("transactions", transactionService.findAll());
+            model.addObject("transactions", transactionPage.getContent());
             model.setViewName("transactions/list");
             model.addObject("navPage", navPage);
         } catch (Exception e) {
